@@ -1,0 +1,159 @@
+-- =====================================================================================================================
+/*
+   CREATED BY RAHUL KUMAR [01-3101] ON  2024-03-19 15:34:49.060
+
+   DEPENDENCY GRAPH
+   1. M_PDS_UPDATE_FPS_DATA_LOG_TABLE          TABLE OF [PDSCORE]  DATABASE
+   2. T_PDS_FPS_PAYMENT                        TABLE OF [PDSCORE]  DATABASE
+
+   TRIGGER INFORMATION 
+   1.trg_T_PDS_FPS_PAYMENT              PDSCODE     DATABASE
+    
+   DDL STATEMENT
+			CREATE TABLE M_PDS_UPDATE_FPS_DATA_LOG_TABLE
+			(
+			ID                       BIGINT  PRIMARY KEY IDENTITY(1,1),
+			INTFPSID                 BIGINT NULL,
+			VCHREFERENCENO           VARCHAR(50) NULL,
+
+			INTBANKID_PRE            INT,
+			INTBANKID_CURR           INT,
+
+			INTBRANCHID_PRE          INT,
+			INTBRANCHID_CURR         INT, 
+
+			VCHIFSCCODE_PRE          VARCHAR(30),
+			VCHIFSCCODE_CURR         VARCHAR(30),
+
+			VCHACCOUNTNUMBER_PRE     VARCHAR(50),
+			VCHACCOUNTNUMBER_CURR    VARCHAR(50),
+
+			VCHAPPLICANTPHOTO_PRE    VARCHAR(200),
+			VCHAPPLICANTPHOTO_CURR   VARCHAR(200),
+
+			VCHCHALLANDOC_PRE        VARCHAR(200),
+			VCHCHALLANDOC_CURR       VARCHAR(200),
+
+			VCHCHALLAN_PRE           VARCHAR(200),
+			VCHCHALLAN_CURR          VARCHAR(200),
+
+			DTMCHALLAN               DATETIME,
+
+			INTUPDATEBY              INT,
+			DTMUPDATEON              DATETIME
+			);
+
+
+
+------------------------------------------- PRIVILEGE TO BE GRANTED
+
+
+ GRANT INSERT ON [dbo].[M_PDS_UPDATE_FPS_DATA_LOG_TABLE] TO [PDSCORE]
+
+ GRANT UPDATE ON [dbo].[M_PDS_UPDATE_FPS_DATA_LOG_TABLE]  TO [PDSCORE]
+
+ GRANT SELECT ON [dbo].[M_PDS_UPDATE_FPS_DATA_LOG_TABLE]  TO [PDSCORE]
+
+
+*/
+-- ===============================================================
+ALTER TRIGGER [dbo].[trg_T_PDS_FPS_PAYMENT]
+ON [dbo].[T_PDS_FPS_PAYMENT]
+FOR UPDATE
+
+AS
+
+BEGIN
+				     
+
+                  DECLARE @ActualUpdateStatus BIT = 0
+
+			 IF (UPDATE(VCHCHALLANDOC) OR UPDATE (VCHCHALLAN)) 
+			 BEGIN
+
+			    SELECT @ActualUpdateStatus = 1 
+				FROM deleted D
+				JOIN inserted I 
+				ON D.VCHREFERENCECODE = I.VCHREFERENCECODE
+				AND (
+				       I.VCHCHALLANDOC != D.VCHCHALLANDOC OR
+					   I.VCHCHALLAN != D.VCHCHALLAN 
+ 
+				    )
+
+                IF @ActualUpdateStatus = 1
+
+				BEGIN
+
+				    INSERT INTO M_PDS_UPDATE_FPS_DATA_LOG_TABLE
+					(
+					 INTFPSID,
+					 VCHREFERENCENO,
+
+					 INTBANKID_PRE,
+					 INTBANKID_CURR,
+
+					 INTBRANCHID_PRE,
+					 INTBRANCHID_CURR,
+
+					 VCHIFSCCODE_PRE,
+					 VCHIFSCCODE_CURR,
+
+					 VCHACCOUNTNUMBER_PRE,
+					 VCHACCOUNTNUMBER_CURR,
+
+					 VCHAPPLICANTPHOTO_PRE,
+					 VCHAPPLICANTPHOTO_CURR,
+
+					 VCHCHALLANDOC_PRE,
+					 VCHCHALLANDOC_CURR,
+
+					 VCHCHALLAN_PRE,
+					 VCHCHALLAN_CURR,
+
+					 DTMCHALLAN,
+
+					 INTUPDATEBY,
+					 DTMUPDATEON
+					)
+					SELECT 
+					NULL,
+                    I.VCHREFERENCECODE,
+
+					NULL,
+					NULL,
+
+					NULL,
+					NULL,
+
+					NULL,
+					NULL,
+
+					NULL,
+					NULL,
+
+					NULL,
+					NULL,
+
+					D.VCHCHALLANDOC,
+					I.VCHCHALLANDOC,
+
+					D.VCHCHALLAN,
+					I.VCHCHALLAN,
+
+					I.DTMCHALLAN,
+
+					I.INTUPDATEEDBY,
+
+					GETDATE()
+
+
+					FROM deleted D
+					JOIN inserted I 
+					ON D.VCHREFERENCECODE = I.VCHREFERENCECODE
+
+				END
+
+			 END
+
+END

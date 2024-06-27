@@ -1,0 +1,253 @@
+TABLE STRUCTURES OF SCMS02
+
+SELECT * FROM [S_SCMS_DCGENERATECAPTURETABLE]
+
+SLNO -
+VCHDCNO -  
+VCHMILLERCODE -
+VCHMILLERNAME -
+VCHDEPOTCODE -
+VCHMILLERTYPE -
+VCHDISTCODE -
+VCHDCAMOUNT -
+DTMDATE -
+INTKMS -
+INTSEASON -
+intNoOfLots -
+VCHDC_STATUS -
+IntCommodityCategory - 
+FortifiedSts -
+intDCStatus -
+
+SELECT * FROM T_SCMS_DeliveryCertificateDetails
+
+ID -
+VCHDCNO - DELIVERY CERTIFICATE CODE
+VCHMILLERCODE - MILLER CODE
+VCHMILLERNAME - MILLER NAME
+VCHDEPOTCODE - DEPO CODE
+VCHMILLERTYPE - PARABOLIED RICE
+VCHDISTCODE - 
+VCHDCAMOUNT - DELIVERY CERTIFICATE AMOUNT 
+DTMDATE - 
+INTKMS - 2023
+INTSEASON - KARIF AND RABI
+INT_CREATEDBY - 
+DTM_CREATEDON -
+INT_UPDATEDBY -
+DTM_UPDATEDON -
+intNoOfLots -
+ClosedQuantity -
+VCHDC_STATUS -
+ReceiveQuantity -
+pendingQuantity -
+intDCStatus -
+intCloseorOpen - 1
+intNoOfLots_Program -
+intNoOfLots_Actual_Receive -
+
+SELECT * FROM M_SCMS_ChallanMaster
+
+intChallanID -
+vchChallanNo -
+dtmChallanDt -
+intKMS - 2023
+intProcuredDist - Delivery district 
+vchDepoCode -   Delivery depo of procured district
+intCommodity - 1 
+vchComodity - Rice 
+vchVehicleNo - Vehicle Number
+vchDriverName - Vehicle Driver Name
+intDCId - Delivery Id coming from T_SCMS_DeliveryCertificateDetails table
+vchDCNo - Delivery number coming from T_SCMS_DeliveryCertificateDetails table
+vchLotNo - Lot generate against one DC ( 1 lot = 580 bags)
+intBag - bags in vehicle against lot
+int_CreatedBy -
+dtm_CreatedOn -
+int_UpdatedBy -
+dtm_UpdatedOn -
+intBlockCode -  Delivery block
+VchMillerCode - Delovery miller
+intReceiveStatus - 1 = delivery complete , 0 = not yet delivery
+vchReason -
+intPackMaterial - 1 jute bag , 2 jari bag
+intCommodityCatID - 1 paraboiled Normal, 2 Paraboiled FRK, 3 Raw normal, 4 Raw FRK
+intConfirmStatus -  *
+intBRLStatus - Beyond 
+decQty - Qntl againts bag (intbag) = 1 bag = 50 kg (580 bags = 290 Qntl)
+TRAN_PASS_ID -
+vchDriverAadhaarNo -
+
+
+SELECT * FROM M_SCMS_LotReceive
+
+intReceiveID - Identity
+intDistID - district code 
+intKMS - 2023
+intDCNoID - Dilvery Certificate id come from M_SCMS_ChallanMaster table
+vchDCNo  -Dilvery Certificate number come from M_SCMS_ChallanMaster table
+vchLotNo - lot number come from M_SCMS_ChallanMaster table
+NoOfBag - 1  lot = 580 bags
+ReceiveQtyinQtl - How much qnty recived against bags
+intCategoryID - 1 = Rice
+vchCategory - Rice
+vchDepoCode - Depo who recived bags from miller
+intStackID -
+intCloseStaus -
+intGunnyOSCSC - 580 bags
+intGunnyMiller -
+intReceivedAgnstBRL -
+decGrossWt -
+decTareWt -
+decPackingMaterialWt -
+decNetWt -
+intValueCut - 14% to 15% above then value cut calculate 
+vchAcceptanceNo - Gate pass number
+status -
+Msg -
+int_CreatedBy -
+dtm_CreatedOn -
+int_UpdatedBy -
+dtm_UpdatedOn -
+intDeletedFlag -
+Sample_No - depo code + transit number
+Sample_Date - Bag check date 
+intChallanID - come from challan master table 
+int_rcv_Or_Reject - 1 not reject , else rejected
+vchWeighment - 100% and 10%
+intRejectedLotReceivedAgainstBRL -
+vcholdDCNo -
+vcholdChallanNo -
+vchMillerNo -
+intPackMaterial - 1 = jute ,2 jari
+intColoutTypeId -
+vchcolourname -
+Mobilesavedate -
+DEPT_TRAN_ID -
+dtmReceiveDate -
+transitnumber -
+intBRLStatus  -
+intBRLBag -
+intBRLQTY -
+intOldBRLReceiveID -
+intOldBRLLOTNo -
+intOldBRLKMS -
+intStockID -
+
+
+Broken 15% above then reject
+
+
+SELECT * FROM T_SCMS_ReceiveChallanDetails 
+
+intChallanDetailsID -
+intReceiveID -
+intChallanID -
+decGrossWt -
+decTareWt -
+decPackingWt -
+decNetWt -
+int_CreatedBy -
+dtm_CreatedOn -
+int_UpdatedBy -
+dtm_UpdatedOn -
+intDeletedFlag -
+RCPT_TRAN_ID -
+TRAN_PASS_ID -
+intKMSOld -
+
+
+SELECT * FROM T_SCMS_ReceiveStackDetails
+
+
+int_DetailId -
+intReceiveID -
+intStackID -
+intBag -
+decQuantity -
+int_CreatedBy -
+dtm_CreatedOn -
+int_UpdatedBy -
+dtm_UpdatedOn -
+intDeletedFlag -
+intPrevBags -
+intBRLBags -
+decPrevQty -
+decBRLQty -
+intStockID -
+DEPT_TRAN_ID -
+vchDCNo -
+vchLotNo -
+Depot_code -
+stack_name -
+
+
+SELECT * FROM T_SCMS_QualityDetails
+
+
+intID -
+intReceiveID -
+intRefractionID -
+decMaxLimit -
+decActual -
+int_CreatedBy -
+dtm_CreatedOn -
+int_UpdatedBy -
+dtm_UpdatedOn -
+TP_CODE -
+RCPT_TRAN_ID -
+intCommodityCatID -
+
+
+SELECT * FROM T_SCMS_StackTransactDetails
+
+intID -
+intStackId -
+intDepotId -
+vchDepotName -
+intCommodity -
+intCommodityTypeId -
+intKMS -
+vchRcvFromStatus -
+TransactStatus -
+ReceiveQty -
+ReceiveBag -
+IssueQty -
+IssueBag -
+vchDistId -
+vchBlockId -
+intSchemeTypeId -
+dtmCreation -
+intCreatedBy -
+vchMillerCode -
+int_issueId -
+decStorageLossQty -
+decStorageLossBag -
+IntReceiveId -
+vchTransportContractorId -
+vchVehicleNo -
+vchDriverName -
+dtmTransactionDate -
+vchGatepassNo -
+intpackingmaterial -
+INTSTOCKID -
+intDamageGunnyBag -
+intNewGunnyBag -
+intDeletedFlag -
+TRANSFERTOINTSTOCKID -
+DMGQNTY -
+DMGBAGS -
+FREEZQNTY -
+FREEZBAGS -
+DMGSTATUS -
+FREEZESTATUS -
+intStackIndex -
+vchReasonForViolation -
+vchReasonForViolationRemarks -
+
+
+
+
+
+
+

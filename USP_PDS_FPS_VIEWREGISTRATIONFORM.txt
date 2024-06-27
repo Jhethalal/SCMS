@@ -1,0 +1,3849 @@
+
+ALTER PROCEDURE [dbo].[USP_PDS_FPS_VIEWREGISTRATIONFORM]
+(
+    @P_CH_ACTION CHAR(2) = NULL,
+    @P_VCHREFERENCENO VARCHAR(50) = NULL,
+    @P_VCHAPPLICANTMOBILE varchar(50) = null,
+    @P_VCHAPPLICANTAADHAARNO varchar(50) = null,
+    @P_INTFPSID INT = 0,
+    @P_INTLICSTATUS INT = 0
+)
+AS
+BEGIN
+
+
+    IF (@P_CH_ACTION = 'VF') -- GET USER DATA FOR PRINT
+    BEGIN
+        IF (@P_VCHREFERENCENO = '')
+        BEGIN
+            SELECT VCHREFERENCENO,
+                   VCHAPPLICANTNAME,
+                   VCHFATHER,
+                   INTFPSID,
+                   CASE
+                       WHEN INTCASTE = 0 THEN
+                           'NEW'
+                       WHEN INTCASTE = 1 THEN
+                           'GENERAL'
+                       WHEN INTCASTE = 2 THEN
+                           'SC'
+                       WHEN INTCASTE = 3 THEN
+                           'ST'
+                       WHEN INTCASTE = 4 THEN
+                           'SEBC'
+                       WHEN INTCASTE = 4 THEN
+                           'PH'
+                   END AS VCHCASTE,
+                   VCHAPPLPROFESSION,
+                   VCHADDRESS,
+                   T.VCHCHALLANDOC,
+                   T.VCHCHALLANDOCK,
+                   T.VCHCHALLANDOCR,
+                   T.VCHCHALLANDOCW,
+                   VCHPLACETOACT,
+                   VCHPLOTNO,
+                   VCHKHATANO,
+                   VCHMOUZA,
+                   VCHSTREETADDRESS,
+                   VCHPINCODE,
+                   VCHPOLICESTATION,
+                   VCHDISTID,
+                   D.VCH_DISTRICTNAME AS DISTNAME,
+                   VCHBLOCKID,
+                   (
+                       Select vch_BlockName from PDS_BlockMaster where int_BlockID = VCHBLOCKID
+                   ) as BLOCK,
+                   VCHEASTBOUNDARYDET,
+                   VCHNORTHBOUNDARYDET,
+                   VCHWESTBOUNDARYDET,
+                   VCHSOUTHBOUNDARYDET,
+                   VCHSUBCENTER,
+                   VCHFPSAPPLICANTNAME,
+                   CASE
+                       WHEN INTFPSDESIG = 1 THEN
+                           'President'
+                       WHEN INTFPSDESIG = 2 THEN
+                           'Secretary'
+                       WHEN INTFPSDESIG = 3 THEN
+                           'Owner'
+                       WHEN INTFPSDESIG = 4 THEN
+                           'PEO'
+                       WHEN INTFPSDESIG = 5 THEN
+                           'Executive Officer (EO)'
+                       WHEN INTFPSDESIG = 6 THEN
+                           'SA-cum-GA'
+					   WHEN INTFPSDESIG = 7 THEN
+                           'Managing Director'
+					   WHEN INTFPSDESIG = 8 THEN
+                           'Applicant'
+                   END AS VCHDESIGNAME,
+                   CASE
+                       WHEN INTOTHERFPSTYPE = 1 THEN
+                           'NAC'
+                       WHEN INTOTHERFPSTYPE = 2 THEN
+                           'MPL'
+                       WHEN INTOTHERFPSTYPE = 3 THEN
+                           'MC'
+                       WHEN INTOTHERFPSTYPE = 4 THEN
+                           'NGP'
+                       WHEN INTOTHERFPSTYPE = 5 THEN
+                           'OSCSC Ltd.'
+                   END AS VCHOTHERTYPENAME,
+                   CASE
+                       WHEN INTBUILDINGTYPE = 0 THEN
+                           'PUCCA'
+                       WHEN INTBUILDINGTYPE = 1 THEN
+                           'KACHA'
+                   END AS VCHBUILDINGTYPE,
+                   CASE
+                       WHEN INTROOFTYPE = 0 THEN
+                           'RCC'
+                       WHEN INTROOFTYPE = 1 THEN
+                           'Asbestos sheet'
+                   END AS VCHROOFTYPE,
+                   CASE
+                       WHEN INTCOMPOUNDWALL = 0 THEN
+                           'No'
+                       WHEN INTCOMPOUNDWALL = 1 THEN
+                           'Yes'
+                   END AS VCHCOMPOUNDWALL,
+                   CASE
+                       WHEN INTSTORAGE = 0 THEN
+                           'No'
+                       WHEN INTSTORAGE = 1 THEN
+                           'Yes'
+                   END AS VCHSTORAGE,
+                   DECSTORAGE,
+                   CASE
+                       WHEN INTOWNERSHIPTYPE = 0 THEN
+                           'OWN'
+                       WHEN INTOWNERSHIPTYPE = 1 THEN
+                           'RENTED'
+                   END AS VCHOWNERSHIPTYPE,
+                   VCHRENTAGREEMENTDET,
+                   M.VCHACTIVITYNAME AS INTAPPLACTTYPE,
+                   CASE
+                       WHEN INTPREVLICENSEAPPLY = 0 THEN
+                           'No'
+                       WHEN INTPREVLICENSEAPPLY = 1 THEN
+                           'Yes'
+                   END AS VCHPREVLICENSEAPPLY,
+                   VCHPREVLICENSEDET,
+                   DECINCOMETAX1,
+                   DECINCOMETAX2,
+                   VCHINCOMETAX2,
+                   VCHINCOMETAX1,
+                   VCHCOMMODITIESADDRESS,
+                   CASE
+                       WHEN INTELECTRICITY = 1 THEN
+                           'No'
+                       WHEN INTELECTRICITY = 0 THEN
+                           'Yes'
+                   END AS VCHELECTRICITY,
+                   CASE
+                       WHEN INTINTERNET = 0 THEN
+                           'No'
+                       WHEN INTINTERNET = 1 THEN
+                           'Yes'
+                   END AS VCHINTERNET,
+                   CASE
+                       WHEN INTPOSAVL = 0 THEN
+                           'No'
+                       WHEN INTPOSAVL = 1 THEN
+                           'Yes'
+                   END AS POS,
+                   L.VCHAPPLICANTMOBILE,
+                   L.VCHAPPLICANTAADHAARNO,
+                   VCHAPPLICANTPHOTO,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END VCHPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END VCHPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END VCHPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL,
+                   CASE
+                       WHEN T.INTPAYMODE = 2 THEN
+                           'Offline'
+                       WHEN T.INTPAYMODE = 1 THEN
+                           'Online'
+                   END AS PAYMENTMODE,
+                   T.DECAMOUNT,
+                   T.VCHCHALLAN,
+                   Convert(varchar(20), T.DTMCHALLAN, 113) DTMCHALLAN,
+                   T.DECAMOUNTR,
+                   T.DECAMOUNTW,
+                   T.DECAMOUNTK,
+                   T.VCHCHALLANR,
+                   T.VCHCHALLANW,
+                   T.VCHCHALLANK,
+                   Convert(varchar(20), T.DTMCHALLANR, 113) DTMCHALLANR,
+                   Convert(varchar(20), T.DTMCHALLANW, 113) DTMCHALLANW,
+                   Convert(varchar(20), T.DTMCHALLANK, 113) DTMCHALLANK,
+                   CASE
+                       WHEN ISNULL(IntBankdetailsUpdatedstatus, 0) = 1 THEN
+                           L.VCHACCOUNTNUMBER
+                       ELSE
+                           '--NA--'
+                   END AS AccountNumber,
+                   CASE
+                       WHEN ISNULL(IntBankdetailsUpdatedstatus, 0) = 1 THEN
+                           L.VCHIFSCCODE
+                       ELSE
+                           '--NA--'
+                   END AS IFSCCode,
+                   CASE
+                       WHEN ISNULL(IntBankdetailsUpdatedstatus, 0) = 1 THEN
+                       (
+                           SELECT vchBankName
+                           FROM M_PDS_FARMERBANK
+                           WHERE intId = L.INTBANKID
+                                 AND INTDELETEDFLAG = 0
+                       )
+                       ELSE
+                           '--NA--'
+                   END AS BANKNAME,
+				    CASE
+                       WHEN ISNULL(IntBankdetailsUpdatedstatus, 0) = 1 THEN
+                       (
+                           SELECT intId
+                           FROM M_PDS_FARMERBANK
+                           WHERE intId = L.INTBANKID
+                                 AND INTDELETEDFLAG = 0
+                       )
+                       ELSE
+                           '--NA--'
+                   END AS BANKId,
+
+                   CASE
+                       WHEN ISNULL(IntBankdetailsUpdatedstatus, 0) = 1 THEN
+                       (
+                           SELECT vchBranchName
+                           FROM M_PDS_BANKBRANCH
+                           WHERE intBranchId = L.INTBRANCHID
+                                 AND INTDELETEDFLAG = 0
+                       )
+                       ELSE
+                           '--NA--'
+                   END AS BRANCHNAME,
+				    CASE
+                       WHEN ISNULL(IntBankdetailsUpdatedstatus, 0) = 1 THEN
+                       (
+                           SELECT intBranchId
+                           FROM M_PDS_BANKBRANCH
+                           WHERE intBranchId = L.INTBRANCHID
+                                 AND INTDELETEDFLAG = 0
+                       )
+                       ELSE
+                           '--NA--'
+                   END AS BRANCHID,
+                   case
+                       when isnull(IntPDSDistributeStatus, 0) = 1 then
+                           'ONLINE'
+                       when isnull(IntPDSDistributeStatus, 0) = 2 then
+                           'OFFLINE'
+                       ELSE
+                           '-NA-'
+                   END AS PDSDistributeStatus
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON F.VCHDISTID = D.INT_DISTRICTID
+                       AND F.INTDELETEDFLAG = 0
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+                LEFT JOIN T_PDS_FPS_PAYMENT T
+                    ON L.VCHREFERENCENO = T.VCHREFERENCECODE
+                       AND T.INTDELETEDFLAG = 0
+                left join M_PDS_SETAUTH_ACTIVITY M
+                    On M.INTACTIVITYID = L.INTACTTYPE
+                       AND M.INTDELETEDFLAG = 0
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.INTAPPROVESTATUS = 0
+            ORDER BY VCHAPPLICANTNAME
+        END
+        ELSE
+        BEGIN
+            SELECT VCHREFERENCENO,
+                   VCHAPPLICANTNAME,
+                   VCHFATHER,
+                   INTFPSID,
+                   CASE
+                       WHEN INTCASTE = 0 THEN
+                           'NEW'
+                       WHEN INTCASTE = 1 THEN
+                           'GENERAL'
+                       WHEN INTCASTE = 2 THEN
+                           'SC'
+                       WHEN INTCASTE = 3 THEN
+                           'ST'
+                       WHEN INTCASTE = 4 THEN
+                           'SEBC'
+                       WHEN INTCASTE = 4 THEN
+                           'PH'
+                   END AS VCHCASTE,
+                   VCHAPPLPROFESSION,
+                   VCHADDRESS,
+                   T.VCHCHALLANDOC,
+                   T.VCHCHALLANDOCK,
+                   T.VCHCHALLANDOCR,
+                   T.VCHCHALLANDOCW,
+                   VCHPLACETOACT,
+                   VCHPLOTNO,
+                   VCHKHATANO,
+                   VCHMOUZA,
+                   VCHSTREETADDRESS,
+                   VCHPINCODE,
+                   VCHPOLICESTATION,
+                   VCHDISTID,
+                   D.VCH_DISTRICTNAME AS DISTNAME,
+                   VCHBLOCKID,
+                   (
+                       Select vch_BlockName from PDS_BlockMaster where int_BlockID = VCHBLOCKID
+                   ) as BLOCK,
+                   VCHEASTBOUNDARYDET,
+                   VCHNORTHBOUNDARYDET,
+                   VCHWESTBOUNDARYDET,
+                   VCHSOUTHBOUNDARYDET,
+                   VCHSUBCENTER,
+                   VCHFPSAPPLICANTNAME,
+                   CASE
+                       WHEN INTFPSDESIG = 1 THEN
+                           'President'
+                       WHEN INTFPSDESIG = 2 THEN
+                           'Secretary'
+                       WHEN INTFPSDESIG = 3 THEN
+                           'Owner'
+                       WHEN INTFPSDESIG = 4 THEN
+                           'PEO'
+                       WHEN INTFPSDESIG = 5 THEN
+                           'Executive Officer (EO)'
+                       WHEN INTFPSDESIG = 6 THEN
+                           'SA-cum-GA'
+					WHEN INTFPSDESIG = 7 THEN
+                    'Managing Director'
+					 WHEN INTFPSDESIG = 8 THEN
+                           'Applicant'
+                   END AS VCHDESIGNAME,
+                   CASE
+                       WHEN INTOTHERFPSTYPE = 1 THEN
+                           'NAC'
+                       WHEN INTOTHERFPSTYPE = 2 THEN
+                           'MPL'
+                       WHEN INTOTHERFPSTYPE = 3 THEN
+                           'MC'
+                       WHEN INTOTHERFPSTYPE = 4 THEN
+                           'NGP'
+                       WHEN INTOTHERFPSTYPE = 5 THEN
+                           'OSCSC Ltd.'
+                   END AS VCHOTHERTYPENAME,
+                   CASE
+                       WHEN INTBUILDINGTYPE = 0 THEN
+                           'PUCCA'
+                       WHEN INTBUILDINGTYPE = 1 THEN
+                           'KACHA'
+                   END AS VCHBUILDINGTYPE,
+                   CASE
+                       WHEN INTROOFTYPE = 0 THEN
+                           'RCC'
+                       WHEN INTROOFTYPE = 1 THEN
+                           'Asbestos sheet'
+                   END AS VCHROOFTYPE,
+                   CASE
+                       WHEN INTCOMPOUNDWALL = 0 THEN
+                           'No'
+                       WHEN INTCOMPOUNDWALL = 1 THEN
+                           'Yes'
+                   END AS VCHCOMPOUNDWALL,
+                   CASE
+                       WHEN INTSTORAGE = 0 THEN
+                           'No'
+                       WHEN INTSTORAGE = 1 THEN
+                           'Yes'
+                   END AS VCHSTORAGE,
+                   DECSTORAGE,
+                   CASE
+                       WHEN INTOWNERSHIPTYPE = 0 THEN
+                           'OWN'
+                       WHEN INTOWNERSHIPTYPE = 1 THEN
+                           'RENTED'
+                   END AS VCHOWNERSHIPTYPE,
+                   VCHRENTAGREEMENTDET,
+                   CASE
+                       WHEN L.INTACTTYPE = 4 THEN
+                           'Retailer'
+                       WHEN L.INTACTTYPE = 5 THEN
+                           'Wholesaler'
+                       WHEN L.INTACTTYPE = 1 THEN
+                           'Sub-Wholesaler'
+                   END AS VCHAPPLACTTYPE,
+                   M.VCHACTIVITYNAME AS INTAPPLACTTYPE,
+                   CASE
+                       WHEN INTPREVLICENSEAPPLY = 0 THEN
+                           'No'
+                       WHEN INTPREVLICENSEAPPLY = 1 THEN
+                           'Yes'
+                   END AS VCHPREVLICENSEAPPLY,
+                   VCHPREVLICENSEDET,
+                   DECINCOMETAX1,
+                   DECINCOMETAX2,
+                   VCHINCOMETAX2,
+                   VCHINCOMETAX1,
+                   VCHCOMMODITIESADDRESS,
+                   CASE
+                       WHEN INTELECTRICITY = 1 THEN
+                           'No'
+                       WHEN INTELECTRICITY = 0 THEN
+                           'Yes'
+                   END AS VCHELECTRICITY,
+                   CASE
+                       WHEN INTINTERNET = 0 THEN
+                           'No'
+                       WHEN INTINTERNET = 1 THEN
+                           'Yes'
+                   END AS VCHINTERNET,
+                   CASE
+                       WHEN INTPOSAVL = 0 THEN
+                           'No'
+                       WHEN INTPOSAVL = 1 THEN
+                           'Yes'
+                   END AS POS,
+                   L.VCHAPPLICANTMOBILE,
+                   L.VCHAPPLICANTAADHAARNO,
+                   F.VCHAPPLICANTPHOTO,
+                   --SUBSTRING( VCHAPPLICANTPHOTO,15,45) as VCHAPPLICANTPHOTO,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END VCHPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END VCHPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END VCHPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL,
+                   CASE
+                       WHEN T.INTPAYMODE = 2 THEN
+                           'Offline'
+                       WHEN T.INTPAYMODE = 1 THEN
+                           'Online'
+                   END AS PAYMENTMODE,
+                   T.DECAMOUNT,
+                   T.VCHCHALLAN,
+                   Convert(varchar(20), T.DTMCHALLAN, 113) DTMCHALLAN,
+                   CASE
+                       WHEN F.INTFPSTYPE = 1 THEN
+                           'GP'
+                       WHEN F.INTFPSTYPE = 2 THEN
+                           'WSHG'
+                       WHEN F.INTFPSTYPE = 3 THEN
+                           'SHG'
+                   END AS FPSTYPE,
+                   T.DECAMOUNT,
+                   T.DECAMOUNTR,
+                   T.DECAMOUNTW,
+                   T.DECAMOUNTK,
+                   T.VCHCHALLANR,
+                   T.VCHCHALLANW,
+                   T.VCHCHALLANK,
+                   Convert(varchar(20), T.DTMCHALLANR, 113) DTMCHALLANR,
+                   Convert(varchar(20), T.DTMCHALLANW, 113) DTMCHALLANW,
+                   Convert(varchar(20), T.DTMCHALLANK, 113) DTMCHALLANK,
+                   L.VCHACCOUNTNUMBER,
+                   L.VCHIFSCCODE,
+                   (
+                       SELECT vchBankName
+                       FROM M_PDS_FARMERBANK
+                       WHERE intId = L.INTBANKID
+                             AND INTDELETEDFLAG = 0
+                   ) AS BANKNAME,
+
+				   (
+                       SELECT intId
+                       FROM M_PDS_FARMERBANK
+                       WHERE intId = L.INTBANKID
+                             AND INTDELETEDFLAG = 0
+                   )  AS BANKID,
+                   (
+                       SELECT vchBranchName
+                       FROM M_PDS_BANKBRANCH
+                       WHERE intBranchId = L.INTBRANCHID
+                             AND INTDELETEDFLAG = 0
+                   ) AS BRANCHNAME,
+				   (
+                       SELECT intBranchId
+                       FROM M_PDS_BANKBRANCH
+                       WHERE intBranchId = L.INTBRANCHID
+                             AND INTDELETEDFLAG = 0
+                   ) AS BRANCHID,
+                   case
+                       when isnull(IntPDSDistributeStatus, 0) = 1 then
+                           'ONLINE'
+                       when isnull(IntPDSDistributeStatus, 0) = 2 then
+                           'OFFLINE'
+                       ELSE
+                           '-NA-'
+                   END AS PDSDistributeStatus
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON F.VCHDISTID = D.INT_DISTRICTID
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+                LEFT JOIN T_PDS_FPS_PAYMENT T
+                    ON L.VCHREFERENCENO = T.VCHREFERENCECODE
+                       AND T.INTDELETEDFLAG = 0
+                left join M_PDS_SETAUTH_ACTIVITY M
+                    On M.INTACTIVITYID = L.INTACTTYPE
+                       AND M.INTDELETEDFLAG = 0
+            WHERE L.INTDELETEDFLAG = 0
+                  AND (
+                          L.VCHLICENSENO = @P_VCHREFERENCENO
+                          OR L.VCHREFERENCENO = @P_VCHREFERENCENO
+                          OR L.VCHOLDLICENSENO = @P_VCHREFERENCENO
+                      )
+                  AND F.INTDELETEDFLAG = 0
+            ORDER BY VCHAPPLICANTNAME
+        END
+
+    END
+    IF (@P_CH_ACTION = 'AN')
+    BEGIN
+        DECLARE @CNT4 INT
+        DECLARE @COUNT4 INT = 0
+        --IF ((@P_VCHREFERENCENO ='2226K119') or (@P_VCHREFERENCENO ='2211K218') or (@P_VCHREFERENCENO ='2211K219') or (@P_VCHREFERENCENO ='2213K083') or (@P_VCHREFERENCENO ='2208K093') or (@P_VCHREFERENCENO ='2230K015'))
+        --begin
+        IF EXISTS
+        (
+            SELECT INTREGDID
+            FROM M_FPS_REGISTRATION
+            WHERE VCHREFNO = @P_VCHREFERENCENO
+        ) --and ISNULL(vchRemark,'') = 'BlockedFPS')
+        BEGIN
+            --IF (SUBSTRING(@P_VCHREFERENCENO,5,1) ='P')
+            --begin
+            --	 set  @CNT=  (select Count(INTFPSID)  FROM M_PDS_FPS_LICENSEAPPLY 
+            --WHERE INTDELETEDFLAG=0 AND ISNULL(VCHOLDLICENSENO,'')=@P_VCHREFERENCENO AND INTYEAR<>2020)
+            --	if(@CNT=0)
+            --	begin 
+            --		SET @COUNT1=0
+            --SELECT @COUNT1 AS CHECKDATA
+            --	end
+            --	else
+            --	begin
+            IF EXISTS
+            (
+                SELECT INTFPSID
+                FROM M_PDS_FPS_LICENSEAPPLY
+                WHERE INTDELETEDFLAG = 0
+                      AND INTAPPROVESTATUS <> 7
+                      AND ISNULL(VCHOLDLICENSENO, '') = @P_VCHREFERENCENO
+                      AND INTYEAR = 2020
+            )
+            BEGIN
+                SET @COUNT4 = 3
+                SELECT @COUNT4 AS CHECKDATA
+            END
+            ELSE IF EXISTS
+            (
+                SELECT INTFPSID
+                FROM M_PDS_FPS_LICENSEAPPLY
+                WHERE INTDELETEDFLAG = 0
+                      AND ISNULL(VCHOLDLICENSENO, '') = @P_VCHREFERENCENO
+                      AND INTYEAR <> 2020
+            )
+            BEGIN
+                SET @COUNT4 = 2
+
+            END
+            ELSE
+            BEGIN
+                SET @COUNT4 = 1
+            END
+            IF @COUNT4 = 1
+            BEGIN
+                SELECT @COUNT4 AS CHECKDATA,
+                       VCHDISTID,
+                       VCHBLOCKID,
+                       iif((VCHGPID = '0' or vchVillageID = '0'), intWardNo, vchGPID) vchGPID,
+                       iif((VCHGPID = '0' or vchVillageID = '0'), vchLocality, VCHVILLAGEID) vchVillageID,
+                       VCHLHNAME as VCHAPPLICANTNAME,
+                       INTMOBILENO as VCHAPPLICANTMOBILE,
+                       intRegdId,
+                       VCHADDRESS as VCHADDRESS,
+                       VCHPLOTNO as VCHPLOTNO,
+                       INTAEL as INTELECTRICITY
+                FROM M_FPS_REGISTRATION F
+                WHERE F.VCHREFNO = @P_VCHREFERENCENO --AND F.BITDELETEDFLAG=0 
+            --WHERE  F.VCHREFNO=@P_VCHREFERENCENO AND (vchLType='WSHG' OR vchLType='SHG')							 
+            END
+            ELSE IF @COUNT4 = 2
+            BEGIN
+                SELECT top 1
+                    @COUNT4 AS CHECKDATA,
+                    F.INTLICID,
+                    F.VCHAPPLICANTNAME,
+                    F.VCHFATHER,
+                    F.INTCASTE,
+                    F.VCHAPPLPROFESSION,
+                    F.VCHADDRESS,
+                    F.VCHPLACETOACT,
+                    F.VCHPLOTNO,
+                    F.VCHKHATANO,
+                    F.VCHMOUZA,
+                    F.VCHSTREETADDRESS,
+                    F.VCHPINCODE,
+                    F.VCHPOLICESTATION,
+                    F.VCHDISTID,
+                    F.VCHBLOCKID,
+                    F.VCHEASTBOUNDARYDET,
+                    F.VCHNORTHBOUNDARYDET,
+                    F.VCHWESTBOUNDARYDET,
+                    F.VCHSOUTHBOUNDARYDET,
+                    F.INTBUILDINGTYPE,
+                    F.INTROOFTYPE,
+                    F.INTCOMPOUNDWALL,
+                    F.INTSTORAGE,
+                    F.DECSTORAGE,
+                    F.INTOWNERSHIPTYPE,
+                    F.VCHRENTAGREEMENTDET,
+                    F.INTPREVLICENSEAPPLY,
+                    F.VCHPREVLICENSEDET,
+                    F.VCHSUBCENTER,
+                    F.DECINCOMETAX1,
+                    F.VCHINCOMETAX1,
+                    F.DECINCOMETAX2,
+                    F.VCHINCOMETAX2,
+                    F.VCHCOMMODITIESADDRESS,
+                    F.INTELECTRICITY,
+                    F.INTPOSAVL,
+                    F.VCHAPPLICANTPHOTO,
+                    F.VCHAPPLICANTMOBILE,
+                    F.VCHAPPLICANTAADHAARNO,
+                    F.INTINTERNET,
+                    L.INTACTTYPE,
+                    CASE
+                        WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                            'RICE'
+                    END INTPDSCMRICE,
+                    CASE
+                        WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                            'WHEAT'
+                    END INTPDSCMWHEAT,
+                    CASE
+                        WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                            'KEROSENE'
+                    END INTPDSCMKOIL,
+                    DECLASTCMRICE,
+                    DECLASTCMWHEAT,
+                    DECLASTCMKOIL,
+                    DECCURCMRICE,
+                    DECCURCMWHEAT,
+                    DECCURCMKOIL,
+                    DECFUTCMRICE,
+                    DECFUTCMWHEAT,
+                    DECFUTCMKOIL
+                FROM T_PDS_FPS_LICENSEEDETAILS F
+                    LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                        ON F.INTLICID = L.INTFPSID
+                WHERE L.INTDELETEDFLAG = 0
+                      AND L.VCHOLDLICENSENO = @P_VCHREFERENCENO
+                      AND F.INTDELETEDFLAG = 0
+                      AND (
+                              L.INTYEAR = 2019
+                              OR L.INTYEAR = 2018
+                          )
+                      and INTAPPROVESTATUS <> 7
+                ORDER BY VCHAPPLICANTNAME,
+                         L.INTYEAR desc
+            END
+        --end
+        --end
+        --else
+        --begin
+        --	IF EXISTS(SELECT INTFPSID FROM M_PDS_FPS_LICENSEAPPLY WHERE INTDELETEDFLAG=0 AND INTAPPROVESTATUS<>7 AND ISNULL(VCHOLDLICENSENO,'')=@P_VCHREFERENCENO AND INTYEAR=2020 )								
+        --		BEGIN
+        --			SET @COUNT1=3	
+        --			SELECT @COUNT1 AS CHECKDATA
+        --		END
+
+        --	ELSE IF EXISTS(SELECT INTFPSID FROM M_PDS_FPS_LICENSEAPPLY WHERE INTDELETEDFLAG=0 AND ISNULL(VCHOLDLICENSENO,'')=@P_VCHREFERENCENO AND INTYEAR<>2020)								
+        --		BEGIN
+        --			SET @COUNT1=2	
+
+        --		END
+
+        --	ELSE 
+        --		BEGIN
+        --			SET @COUNT1=1
+        --		END
+        --	IF @COUNT1 =1
+        --		BEGIN
+        --			SELECT @COUNT1 AS CHECKDATA,VCHDISTID,VCHBLOCKID,iif((VCHGPID='0' or vchVillageID='0'),intWardNo,vchGPID)vchGPID,
+        --			iif((VCHGPID='0' or vchVillageID='0'),vchLocality,VCHVILLAGEID)vchVillageID,
+        --			VCHLHNAME as VCHAPPLICANTNAME,INTMOBILENO as VCHAPPLICANTMOBILE,
+        --			VCHADDRESS as VCHADDRESS,VCHPLOTNO as VCHPLOTNO,INTAEL as INTELECTRICITY
+        --			FROM M_FPS_REGISTRATION F  
+        --			WHERE  F.VCHREFNO=@P_VCHREFERENCENO 	--AND F.BITDELETEDFLAG=0 
+        --			--WHERE  F.VCHREFNO=@P_VCHREFERENCENO AND (vchLType='WSHG' OR vchLType='SHG')							 
+        --		END					 
+        --	ELSE IF @COUNT1 =2
+        --		BEGIN
+        --			SELECT top 1 @COUNT1 AS CHECKDATA,F.INTLICID, F.VCHAPPLICANTNAME, F.VCHFATHER, F.INTCASTE, F.VCHAPPLPROFESSION, F.VCHADDRESS,   F.VCHPLACETOACT, F.VCHPLOTNO, F.VCHKHATANO, 
+        --			F.VCHMOUZA, F.VCHSTREETADDRESS, F.VCHPINCODE, F.VCHPOLICESTATION, F.VCHDISTID,F.VCHBLOCKID,F.VCHEASTBOUNDARYDET, F.VCHNORTHBOUNDARYDET, F.VCHWESTBOUNDARYDET, F.VCHSOUTHBOUNDARYDET, 
+        --			F.INTBUILDINGTYPE, F.INTROOFTYPE, F.INTCOMPOUNDWALL,F.INTSTORAGE,F.DECSTORAGE,  F.INTOWNERSHIPTYPE, F.VCHRENTAGREEMENTDET, F.INTPREVLICENSEAPPLY, F.VCHPREVLICENSEDET, F.VCHSUBCENTER, 
+        --			  F.DECINCOMETAX1, F.VCHINCOMETAX1, F.DECINCOMETAX2, F.VCHINCOMETAX2,   F.VCHCOMMODITIESADDRESS, F.INTELECTRICITY, F.INTPOSAVL,
+        --			F.VCHAPPLICANTPHOTO, F.VCHAPPLICANTMOBILE, F.VCHAPPLICANTAADHAARNO, F.INTINTERNET,L.INTACTTYPE,
+        --			CASE WHEN ISNULL(INTPDSCMRICE,0)=1 THEN 'RICE' END INTPDSCMRICE,
+        --			CASE WHEN ISNULL(INTPDSCMWHEAT,0) =1 THEN 'WHEAT' END INTPDSCMWHEAT,
+        --			CASE WHEN ISNULL(INTPDSCMKOIL,0)=1 THEN 'KEROSENE' END INTPDSCMKOIL,
+        --			DECLASTCMRICE,DECLASTCMWHEAT,DECLASTCMKOIL,DECCURCMRICE,DECCURCMWHEAT,DECCURCMKOIL,DECFUTCMRICE,DECFUTCMWHEAT,DECFUTCMKOIL	
+        --			FROM T_PDS_FPS_LICENSEEDETAILS F 
+        --			LEFT JOIN M_PDS_FPS_LICENSEAPPLY L ON F.INTLICID=L.INTFPSID
+        --			WHERE L.INTDELETEDFLAG=0 AND L.VCHOLDLICENSENO=@P_VCHREFERENCENO AND F.INTDELETEDFLAG=0  AND (L.INTYEAR=2019 OR L.INTYEAR=2018)
+        --			ORDER BY VCHAPPLICANTNAME,L.INTYEAR desc
+        --		END
+        --end		
+        END
+        ELSE
+        BEGIN
+            SET @COUNT4 = 0
+            SELECT @COUNT4 AS CHECKDATA
+        END
+    --end
+    --else 
+    --begin
+    --SET @COUNT1=0
+    --end 
+    END
+
+
+    IF (@P_CH_ACTION = 'A') -- GET USER DATA FOR FILL DATA
+    BEGIN
+        DECLARE @COUNT INT = 0
+        IF EXISTS
+        (
+            SELECT INTFPSID
+            FROM M_PDS_FPS_LICENSEAPPLY
+            WHERE INTDELETEDFLAG = 0
+                  AND INTLICENCESTATUS = 0
+                  AND ISNULL(VCHLICENSENO, '') = @P_VCHREFERENCENO
+        )
+            SET @COUNT = 1
+        ELSE
+        BEGIN
+            IF EXISTS
+            (
+                SELECT INTFPSRENEWID
+                FROM T_PDS_FPS_RENEWLICENCE
+                WHERE INTDELETEDFLAG = 0
+                      AND ISNULL(VCHLICENSENO, '') = @P_VCHREFERENCENO
+            )
+                SET @COUNT = 1
+        END
+
+        IF (@COUNT = 0)
+            SELECT 1 AS CHECKDATA
+        --ELSE IF EXISTS(SELECT INTFPSID FROM M_PDS_FPS_LICENSEAPPLY WHERE INTDELETEDFLAG=0 AND INTLICENCESTATUS=0 AND ISNULL(VCHLICENSENO,'')=@P_VCHREFERENCENO AND ISNULL(INTRENEWAPPLYSTATUS,0)<>7)
+        --	SELECT 2 AS CHECKDATA
+        --ELSE IF EXISTS(SELECT MAST.INTFPSID FROM T_PDS_FPS_RENEWLICENCE REN JOIN M_PDS_FPS_LICENSEAPPLY MAST ON REN.INTFPSRENEWID=MAST.INTRENEWID	WHERE REN.INTDELETEDFLAG=0 AND ISNULL(REN.VCHLICENSENO,'')=@P_VCHREFERENCENO AND MAST.INTLICENCESTATUS=1 AND MAST.INTRENEWID<>MAST.INTRENEWAPPLYID AND ISNULL(MAST.INTRENEWAPPLYSTATUS,0)<>7)
+        --	SELECT 2 AS CHECKDATA
+        Else IF EXISTS
+        (
+            SELECT INTFPSID
+            FROM M_PDS_FPS_LICENSEAPPLY
+            WHERE INTDELETEDFLAG = 0
+                  AND INTLICENCESTATUS = 0
+                  AND ISNULL(VCHLICENSENO, '') = @P_VCHREFERENCENO
+        )
+        BEGIN
+            SELECT 3 AS CHECKDATA,
+                   F.INTLICID,
+                   F.VCHAPPLICANTNAME,
+                   F.VCHFATHER,
+                   F.INTCASTE,
+                   F.VCHAPPLPROFESSION,
+                   F.VCHADDRESS,
+                   F.VCHPLACETOACT,
+                   F.VCHPLOTNO,
+                   F.VCHKHATANO,
+                   F.VCHMOUZA,
+                   F.VCHSTREETADDRESS,
+                   F.VCHPINCODE,
+                   F.VCHPOLICESTATION,
+                   F.VCHDISTID,
+                   F.VCHEASTBOUNDARYDET,
+                   F.VCHNORTHBOUNDARYDET,
+                   F.VCHWESTBOUNDARYDET,
+                   F.VCHSOUTHBOUNDARYDET,
+                   F.INTBUILDINGTYPE,
+                   F.INTROOFTYPE,
+                   F.INTCOMPOUNDWALL,
+                   F.INTOWNERSHIPTYPE,
+                   F.VCHRENTAGREEMENTDET,
+                   F.INTPREVLICENSEAPPLY,
+                   F.VCHPREVLICENSEDET,
+                   F.DECINCOMETAX1,
+                   F.VCHINCOMETAX1,
+                   F.DECINCOMETAX2,
+                   F.VCHINCOMETAX2,
+                   F.VCHCOMMODITIESADDRESS,
+                   F.INTELECTRICITY,
+                   F.VCHAPPLICANTPHOTO,
+                   F.VCHAPPLICANTMOBILE,
+                   F.VCHAPPLICANTAADHAARNO,
+                   F.INTINTERNET,
+                   L.INTACTTYPE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END INTPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END INTPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END INTPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.VCHLICENSENO = @P_VCHREFERENCENO
+                  AND F.INTDELETEDFLAG = 0
+            ORDER BY VCHAPPLICANTNAME
+        END
+        Else IF EXISTS
+        (
+            SELECT INTFPSRENEWID
+            FROM T_PDS_FPS_RENEWLICENCE
+            WHERE INTDELETEDFLAG = 0
+                  AND ISNULL(VCHLICENSENO, '') = @P_VCHREFERENCENO
+        )
+        BEGIN
+            SELECT 3 AS CHECKDATA,
+                   F.INTLICID,
+                   F.VCHAPPLICANTNAME,
+                   F.VCHFATHER,
+                   F.INTCASTE,
+                   F.VCHAPPLPROFESSION,
+                   F.VCHADDRESS,
+                   F.VCHPLACETOACT,
+                   F.VCHPLOTNO,
+                   F.VCHKHATANO,
+                   F.VCHMOUZA,
+                   F.VCHSTREETADDRESS,
+                   F.VCHPINCODE,
+                   F.VCHPOLICESTATION,
+                   F.VCHDISTID,
+                   F.VCHEASTBOUNDARYDET,
+                   F.VCHNORTHBOUNDARYDET,
+                   F.VCHWESTBOUNDARYDET,
+                   F.VCHSOUTHBOUNDARYDET,
+                   F.INTBUILDINGTYPE,
+                   F.INTROOFTYPE,
+                   F.INTCOMPOUNDWALL,
+                   F.INTOWNERSHIPTYPE,
+                   F.VCHRENTAGREEMENTDET,
+                   F.INTPREVLICENSEAPPLY,
+                   F.VCHPREVLICENSEDET,
+                   F.DECINCOMETAX1,
+                   F.VCHINCOMETAX1,
+                   F.DECINCOMETAX2,
+                   F.VCHINCOMETAX2,
+                   F.VCHCOMMODITIESADDRESS,
+                   F.INTELECTRICITY,
+                   F.VCHAPPLICANTPHOTO,
+                   F.VCHAPPLICANTMOBILE,
+                   F.VCHAPPLICANTAADHAARNO,
+                   F.INTINTERNET,
+                   L.INTACTTYPE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END INTPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END INTPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END INTPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+                JOIN T_PDS_FPS_RENEWLICENCE REN
+                    ON REN.INTFPSID = L.INTFPSID
+            WHERE L.INTDELETEDFLAG = 0
+                  AND REN.VCHLICENSENO = @P_VCHREFERENCENO
+                  AND F.INTDELETEDFLAG = 0
+            ORDER BY VCHAPPLICANTNAME
+        END
+    END
+
+
+    IF (@P_CH_ACTION = 'B') -- GET USER DATA FOR PRINT LICENSE
+    BEGIN
+        IF (@P_INTLICSTATUS = '0')
+        BEGIN
+            SELECT L.VCHLICENSENO,
+                   VCHAPPLICANTNAME,
+                   L.VCHOLDLICENSENO,
+                   VCHFATHER,
+                   CASE
+                       WHEN VCHFATHER <> '' THEN
+                   ('C/O :' + VCHFATHER + ' , ' + VCHADDRESS)
+                       ELSE
+                           VCHADDRESS
+                   END Details,
+                   VCHPLOTNO,
+                   VCHSTREETADDRESS,
+                   VCHDISTID,
+                   D.VCH_DISTRICTNAME AS DISTNAME,
+                   ISNULL(G.VCH_GPNAME, 'NA') AS VCHGPID,
+                   ISNULL(VCH_VILLAGENAME, 'NA') AS VCHVILLAGEID,
+                   VCHEASTBOUNDARYDET,
+                   VCHNORTHBOUNDARYDET,
+                   VCHWESTBOUNDARYDET,
+                   VCHSOUTHBOUNDARYDET,
+                   VCHPLACETOACT,
+                   CASE
+                       WHEN INTBUILDINGTYPE = 0 THEN
+                           'PUCCA'
+                       WHEN INTBUILDINGTYPE = 1 THEN
+                           'KACHA'
+                   END AS VCHBUILDINGTYPE,
+                   CASE
+                       WHEN INTOWNERSHIPTYPE = 0 THEN
+                           'OWN'
+                       WHEN INTOWNERSHIPTYPE = 1 THEN
+                           'RENTED'
+                   END AS VCHOWNERSHIPTYPE,
+                   VCHRENTAGREEMENTDET,
+                   CASE
+                       WHEN L.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN L.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS VCHAPPLACTTYPE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END VCHPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END VCHPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END VCHPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL,
+                   F.VCHAPPLICANTPHOTO AS VCHAPPLICANTPHOTO,
+                   --SUBSTRING( F.VCHAPPLICANTPHOTO,15,45) as VCHAPPLICANTPHOTO,
+                   A.VCHPOSNO as POS,
+                   CONVERT(VARCHAR, CONVERT(DATETIME, L.DTMVALIDTO), 106) as DTMVALIDTO
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON F.VCHDISTID = D.INT_DISTRICTID
+                       AND F.INTDELETEDFLAG = 0
+                LEFT JOIN PDS_GPMASTER G
+                    ON G.INT_GPID = F.VCHGPID
+                LEFT JOIN PDS_VILLAGEMASTER V
+                    ON F.VCHVILLAGEID = V.INT_VILLAGEID
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+                LEFT JOIN M_PDS_FPS_APPROVAL A
+                    ON L.INTFPSID = A.INTFPSLICID
+                       AND A.INTLEVEL = 1
+                       AND A.INT_DESIGNATION = 20
+                       and A.INTDELETEDFLAG = 0
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.INTAPPROVESTATUS = 4
+                  AND @P_INTLICSTATUS = 0
+                  AND F.INTLICID = @P_INTFPSID
+        END
+        ELSE
+        BEGIN
+            SELECT L.VCHLICENSENO,
+                   VCHAPPLICANTNAME,
+                   VCHSTREETADDRESS,
+                   VCHDISTID,
+                   D.VCH_DISTRICTNAME AS DISTNAME,
+                   VCHFATHER,
+                   VCHEASTBOUNDARYDET,
+                   VCHNORTHBOUNDARYDET,
+                   VCHWESTBOUNDARYDET,
+                   VCHSOUTHBOUNDARYDET,
+                   CASE
+                       WHEN INTBUILDINGTYPE = 0 THEN
+                           'PUCCA'
+                       WHEN INTBUILDINGTYPE = 1 THEN
+                           'KACHA'
+                   END AS VCHBUILDINGTYPE,
+                   CASE
+                       WHEN INTOWNERSHIPTYPE = 0 THEN
+                           'OWN'
+                       WHEN INTOWNERSHIPTYPE = 1 THEN
+                           'RENTED'
+                   END AS VCHOWNERSHIPTYPE,
+                   VCHRENTAGREEMENTDET,
+                   CASE
+                       WHEN L.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN L.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS VCHAPPLACTTYPE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END VCHPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END VCHPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END VCHPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL,
+                   F.VCHAPPLICANTPHOTO AS VCHAPPLICANTPHOTO
+            --SUBSTRING( F.VCHAPPLICANTPHOTO,15,45) as VCHAPPLICANTPHOTO	
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON F.VCHDISTID = D.INT_DISTRICTID
+                       AND F.INTDELETEDFLAG = 0
+                LEFT JOIN T_PDS_FPS_RENEWLICENCE L
+                    ON F.INTLICID = L.INTFPSID
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.INTAPPROVESTATUS = 4
+                  AND L.INTFPSRENEWID = @P_INTFPSID
+                  AND @P_INTLICSTATUS = 1
+        END
+    END
+
+    IF (@P_CH_ACTION = 'C') -- GET USER DATA FOR MIS REPORT OF FPS LICENSE DISTRICT WISE
+    BEGIN
+        SELECT D.int_DistrictID,
+               D.VCH_DISTRICTNAME,
+               (
+                   SELECT COUNT(INTFPSID)
+                   FROM M_PDS_FPS_LICENSEAPPLY A
+                   WHERE A.INTDELETEDFLAG = 0
+                         AND INTFPSID IN (
+                                             SELECT INTLICID
+                                             FROM T_PDS_FPS_LICENSEEDETAILS F
+                                             WHERE D.INT_DISTRICTID = F.VCHDISTID
+                                                   AND F.INTDELETEDFLAG = 0
+                                                   AND A.INTFPSID = F.INTLICID
+                                         )
+               ) AS COUNTFPS,
+               (
+                   SELECT COUNT(INTFPSID)
+                   FROM M_PDS_FPS_LICENSEAPPLY M
+                   WHERE M.INTDELETEDFLAG = 0
+                         AND M.INTLEVEL IN ( 0, 1 )
+                         AND M.INTAPPROVESTATUS IN ( 0, 6 )
+                         AND INTFPSID IN (
+                                             SELECT INTLICID
+                                             FROM T_PDS_FPS_LICENSEEDETAILS F
+                                             WHERE D.INT_DISTRICTID = F.VCHDISTID
+                                                   AND F.INTDELETEDFLAG = 0
+                                                   AND M.INTFPSID = F.INTLICID
+                                         )
+               ) AS APPROVE,
+               (
+                   SELECT COUNT(INTFPSID)
+                   FROM M_PDS_FPS_LICENSEAPPLY N
+                   WHERE N.INTDELETEDFLAG = 0
+                         AND INTLEVEL = 2
+                         AND INTAPPROVESTATUS = 4
+                         AND INTFPSID IN (
+                                             SELECT INTLICID
+                                             FROM T_PDS_FPS_LICENSEEDETAILS F
+                                             WHERE D.INT_DISTRICTID = F.VCHDISTID
+                                                   AND F.INTDELETEDFLAG = 0
+                                                   AND N.INTFPSID = F.INTLICID
+                                         )
+               ) AS GENERATE
+        FROM PDS_DISTRICTMASTER D
+        GROUP BY VCH_DISTRICTNAME,
+                 int_DistrictID
+        ORDER BY VCH_DISTRICTNAME
+    END
+
+    IF (@P_CH_ACTION = 'D')
+    BEGIN
+        SELECT L.INTFPSID,
+               VCHAPPLICANTNAME,
+               D.VCH_DISTRICTNAME AS DISTNAME,
+               CASE
+                   WHEN L.INTACTTYPE = 5 THEN
+                       'Kerosene Wholesaler'
+                   WHEN L.INTACTTYPE = 4 THEN
+                       'Retailer'
+               END AS INTAPPLACTTYPE,
+               L.VCHREFERENCENO,
+               F.VCHAPPLICANTMOBILE,
+               F.VCHADDRESS,
+               F.VCHKHATANO,
+               F.VCHPLOTNO,
+               F.VCHMOUZA
+        FROM T_PDS_FPS_LICENSEEDETAILS F
+            LEFT JOIN PDS_DISTRICTMASTER D
+                ON F.VCHDISTID = D.INT_DISTRICTID
+            LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                ON F.INTLICID = L.INTFPSID
+        WHERE L.INTDELETEDFLAG = 0
+              AND F.VCHDISTID = @P_VCHREFERENCENO
+    END
+
+    IF (@P_CH_ACTION = 'E')
+    BEGIN
+        SELECT L.INTFPSID,
+               VCHAPPLICANTNAME,
+               D.VCH_DISTRICTNAME AS DISTNAME,
+               CASE
+                   WHEN L.INTACTTYPE = 5 THEN
+                       'Kerosene Wholesaler'
+                   WHEN L.INTACTTYPE = 4 THEN
+                       'Retailer'
+               END AS INTAPPLACTTYPE,
+               L.VCHREFERENCENO,
+               F.VCHAPPLICANTMOBILE,
+               F.VCHADDRESS,
+               F.VCHKHATANO,
+               F.VCHPLOTNO,
+               F.VCHMOUZA
+        FROM T_PDS_FPS_LICENSEEDETAILS F
+            LEFT JOIN PDS_DISTRICTMASTER D
+                ON F.VCHDISTID = D.INT_DISTRICTID
+            LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                ON F.INTLICID = L.INTFPSID
+        WHERE L.INTDELETEDFLAG = 0
+              AND F.VCHDISTID = @P_VCHREFERENCENO
+              AND L.INTLEVEL IN ( 0, 1 )
+              AND L.INTAPPROVESTATUS IN ( 0, 6 )
+    END
+
+    IF (@P_CH_ACTION = 'F')
+    BEGIN
+        SELECT L.INTFPSID,
+               VCHAPPLICANTNAME,
+               D.VCH_DISTRICTNAME AS DISTNAME,
+               CASE
+                   WHEN L.INTACTTYPE = 5 THEN
+                       'Kerosene Wholesaler'
+                   WHEN L.INTACTTYPE = 4 THEN
+                       'Retailer'
+               END AS INTAPPLACTTYPE,
+               L.VCHREFERENCENO,
+               L.VCHLICENSENO,
+               F.VCHAPPLICANTMOBILE,
+               F.VCHADDRESS,
+               F.VCHKHATANO,
+               F.VCHPLOTNO,
+               F.VCHMOUZA
+        FROM T_PDS_FPS_LICENSEEDETAILS F
+            LEFT JOIN PDS_DISTRICTMASTER D
+                ON F.VCHDISTID = D.INT_DISTRICTID
+            LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                ON F.INTLICID = L.INTFPSID
+        WHERE L.INTDELETEDFLAG = 0
+              AND F.VCHDISTID = @P_VCHREFERENCENO
+              AND L.INTLEVEL = 2
+              AND L.INTAPPROVESTATUS = 4
+    END
+
+    IF (@P_CH_ACTION = 'G')
+    BEGIN
+        DECLARE @CNT INT
+        DECLARE @COUNT1 INT = 0
+        --IF ((@P_VCHREFERENCENO ='2226K119') or (@P_VCHREFERENCENO ='2211K218') or (@P_VCHREFERENCENO ='2211K219') or (@P_VCHREFERENCENO ='2213K083') or (@P_VCHREFERENCENO ='2208K093') or (@P_VCHREFERENCENO ='2230K015'))
+        --begin
+        IF EXISTS
+        (
+            SELECT INTREGDID
+            FROM M_FPS_REGISTRATION
+            WHERE VCHREFNO = @P_VCHREFERENCENO
+        ) -- and ISNULL(vchRemark,'') = 'BlockedFPS')
+        BEGIN
+            IF (SUBSTRING(@P_VCHREFERENCENO, 5, 1) = 'P')
+            begin
+                --	 set  @CNT=  (select Count(INTFPSID)  FROM M_PDS_FPS_LICENSEAPPLY 
+                --WHERE INTDELETEDFLAG=0 AND ISNULL(VCHOLDLICENSENO,'')=@P_VCHREFERENCENO AND INTYEAR<>2020)
+                --	if(@CNT=0)
+                --	begin 
+                --		SET @COUNT1=0
+                --SELECT @COUNT1 AS CHECKDATA
+                --	end
+                --	else
+                --	begin
+                IF EXISTS
+                (
+                    SELECT INTFPSID
+                    FROM M_PDS_FPS_LICENSEAPPLY
+                    WHERE INTDELETEDFLAG = 0
+                          AND INTAPPROVESTATUS <> 7
+                          AND ISNULL(VCHOLDLICENSENO, '') = @P_VCHREFERENCENO
+                          AND INTYEAR = @P_INTFPSID
+                )
+                BEGIN
+                    SET @COUNT1 = 3
+                    SELECT @COUNT1 AS CHECKDATA
+                END
+                ELSE IF EXISTS
+                (
+                    SELECT INTFPSID
+                    FROM M_PDS_FPS_LICENSEAPPLY
+                    WHERE INTDELETEDFLAG = 0
+                          AND ISNULL(VCHOLDLICENSENO, '') = @P_VCHREFERENCENO
+                          AND INTYEAR <> @P_INTFPSID
+                )
+                BEGIN
+                    SET @COUNT1 = 2
+
+                END
+                ELSE
+                BEGIN
+                    SET @COUNT1 = 1
+                END
+                IF @COUNT1 = 1
+                BEGIN
+                    SELECT @COUNT1 AS CHECKDATA,
+                           VCHDISTID,
+                           VCHBLOCKID,
+                           iif((VCHGPID = '0' or vchVillageID = '0'), intWardNo, vchGPID) vchGPID,
+                           iif((VCHGPID = '0' or vchVillageID = '0'), vchLocality, VCHVILLAGEID) vchVillageID,
+                           VCHLHNAME as VCHAPPLICANTNAME,
+                           INTMOBILENO as VCHAPPLICANTMOBILE,
+                           VCHADDRESS as VCHADDRESS,
+                           VCHPLOTNO as VCHPLOTNO,
+                           INTAEL as INTELECTRICITY,
+                           intRegdId
+                    FROM M_FPS_REGISTRATION F
+                    WHERE F.VCHREFNO = @P_VCHREFERENCENO --AND F.BITDELETEDFLAG=0 
+                --WHERE  F.VCHREFNO=@P_VCHREFERENCENO AND (vchLType='WSHG' OR vchLType='SHG')							 
+                END
+                ELSE IF @COUNT1 = 2
+                BEGIN
+                    SELECT top 1
+                        @COUNT1 AS CHECKDATA,
+                        F.INTLICID,
+                        F.VCHAPPLICANTNAME,
+                        F.VCHFATHER,
+                        F.INTCASTE,
+                        F.VCHAPPLPROFESSION,
+                        F.VCHADDRESS,
+                        F.VCHPLACETOACT,
+                        F.VCHPLOTNO,
+                        F.VCHKHATANO,
+                        F.VCHMOUZA,
+                        F.VCHSTREETADDRESS,
+                        F.VCHPINCODE,
+                        F.VCHPOLICESTATION,
+                        F.VCHDISTID,
+                        F.VCHBLOCKID,
+                        F.VCHEASTBOUNDARYDET,
+                        F.VCHNORTHBOUNDARYDET,
+                        F.VCHWESTBOUNDARYDET,
+                        F.VCHSOUTHBOUNDARYDET,
+                        F.INTBUILDINGTYPE,
+                        F.INTROOFTYPE,
+                        F.INTCOMPOUNDWALL,
+                        F.INTSTORAGE,
+                        F.DECSTORAGE,
+                        F.INTOWNERSHIPTYPE,
+                        F.VCHRENTAGREEMENTDET,
+                        F.INTPREVLICENSEAPPLY,
+                        F.VCHPREVLICENSEDET,
+                        F.VCHSUBCENTER,
+                        F.DECINCOMETAX1,
+                        F.VCHINCOMETAX1,
+                        F.DECINCOMETAX2,
+                        F.VCHINCOMETAX2,
+                        F.VCHCOMMODITIESADDRESS,
+                        F.INTELECTRICITY,
+                        F.INTPOSAVL,
+                        F.VCHAPPLICANTPHOTO,
+                        F.VCHAPPLICANTMOBILE,
+                        F.VCHAPPLICANTAADHAARNO,
+                        F.INTINTERNET,
+                        L.INTACTTYPE,
+                        CASE
+                            WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                                'RICE'
+                        END VCHPDSCMRICE,
+                        CASE
+                            WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                                'WHEAT'
+                        END VCHPDSCMWHEAT,
+                        CASE
+                            WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                                'KEROSENE'
+                        END VCHPDSCMKOIL,
+                        F.INTPDSCMRICE,
+                        F.INTPDSCMWHEAT,
+                        F.INTPDSCMKOIL,
+                        DECLASTCMRICE,
+                        DECLASTCMWHEAT,
+                        DECLASTCMKOIL,
+                        DECCURCMRICE,
+                        DECCURCMWHEAT,
+                        DECCURCMKOIL,
+                        DECFUTCMRICE,
+                        DECFUTCMWHEAT,
+                        DECFUTCMKOIL,
+                        F.INTFPSTYPE,
+                        L.IntBankdetailsUpdatedstatus,
+                        L.VCHACCOUNTNUMBER,
+                        L.VCHIFSCCODE,
+                        L.INTBANKID,
+                        L.INTBRANCHID,
+                        L.VCHFPSAPPLICANTNAME,
+                        L.INTFPSDESIG AS INTDESIGID,
+                        F.LICENSETYPE AS LICENSETYPE,
+                        L.IntPDSType,
+                        L.IntPDSDistributeStatus,
+                        ISNULL(l.INTOTHERFPSTYPE, 0) INTOTHERFPSTYPE,
+                        (
+                            SELECT vchBankName
+                            FROM M_PDS_FARMERBANK
+                            WHERE intId = L.INTBANKID
+                                  AND INTDELETEDFLAG = 0
+                        ) AS BANKNAME,
+                        (
+                            SELECT vchBranchName
+                            FROM M_PDS_BANKBRANCH
+                            WHERE intBranchId = L.INTBRANCHID
+                                  AND INTDELETEDFLAG = 0
+                        ) AS BRANCHNAME
+                    FROM T_PDS_FPS_LICENSEEDETAILS F
+                        LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                            ON F.INTLICID = L.INTFPSID
+                    WHERE L.INTDELETEDFLAG = 0
+                          AND L.VCHOLDLICENSENO = @P_VCHREFERENCENO
+                          AND F.INTDELETEDFLAG = 0
+                          AND (
+                                  L.INTYEAR = @P_INTFPSID - 1
+                                  OR L.INTYEAR = @P_INTFPSID - 2
+                              )
+                          and INTAPPROVESTATUS <> 7
+                    ORDER BY VCHAPPLICANTNAME,
+                             L.INTYEAR desc
+                END
+            --end
+            end
+            else
+            begin
+                IF EXISTS
+                (
+                    SELECT INTFPSID
+                    FROM M_PDS_FPS_LICENSEAPPLY
+                    WHERE INTDELETEDFLAG = 0
+                          AND INTAPPROVESTATUS <> 7
+                          AND ISNULL(VCHOLDLICENSENO, '') = @P_VCHREFERENCENO
+                          AND INTYEAR = @P_INTFPSID
+                )
+                BEGIN
+
+                    SET @COUNT1 = 3
+                    SELECT @COUNT1 AS CHECKDATA
+                END
+                ELSE IF EXISTS
+                (
+                    SELECT INTFPSID
+                    FROM M_PDS_FPS_LICENSEAPPLY
+                    WHERE INTDELETEDFLAG = 0
+                          AND ISNULL(VCHOLDLICENSENO, '') = @P_VCHREFERENCENO
+                          AND INTYEAR <> @P_INTFPSID
+                )
+                BEGIN
+                    SET @COUNT1 = 2
+
+                END
+                ELSE
+                BEGIN
+                    SET @COUNT1 = 1
+                END
+                IF @COUNT1 = 1
+                BEGIN
+                    PRINT '1'
+                    SELECT @COUNT1 AS CHECKDATA,
+                           VCHDISTID,
+                           VCHBLOCKID,
+                           iif((VCHGPID = '0' or vchVillageID = '0'), intWardNo, vchGPID) vchGPID,
+                           iif((VCHGPID = '0' or vchVillageID = '0'), vchLocality, VCHVILLAGEID) vchVillageID,
+                           VCHLHNAME as VCHAPPLICANTNAME,
+                           INTMOBILENO as VCHAPPLICANTMOBILE,
+                           VCHADDRESS as VCHADDRESS,
+                           VCHPLOTNO as VCHPLOTNO,
+                           INTAEL as INTELECTRICITY,
+                           intRegdId
+                    FROM M_FPS_REGISTRATION F
+                    WHERE F.VCHREFNO = @P_VCHREFERENCENO --AND F.BITDELETEDFLAG=0 
+                --WHERE  F.VCHREFNO=@P_VCHREFERENCENO AND (vchLType='WSHG' OR vchLType='SHG')							 
+                END
+                ELSE IF @COUNT1 = 2
+                BEGIN
+
+
+                    SELECT top 1
+                        @COUNT1 AS CHECKDATA,
+                        F.INTLICID,
+                        F.VCHAPPLICANTNAME,
+                        F.VCHFATHER,
+                        F.INTCASTE,
+                        F.VCHAPPLPROFESSION,
+                        F.VCHADDRESS,
+                        F.VCHPLACETOACT,
+                        F.VCHPLOTNO,
+                        F.VCHKHATANO,
+                        F.VCHMOUZA,
+                        F.VCHSTREETADDRESS,
+                        F.VCHPINCODE,
+                        F.VCHPOLICESTATION,
+                        F.VCHDISTID,
+                        F.VCHBLOCKID,
+                        F.VCHEASTBOUNDARYDET,
+                        F.VCHNORTHBOUNDARYDET,
+                        F.VCHWESTBOUNDARYDET,
+                        F.VCHSOUTHBOUNDARYDET,
+                        F.INTBUILDINGTYPE,
+                        F.INTROOFTYPE,
+                        F.INTCOMPOUNDWALL,
+                        F.INTSTORAGE,
+                        F.DECSTORAGE,
+                        F.INTOWNERSHIPTYPE,
+                        F.VCHRENTAGREEMENTDET,
+                        F.INTPREVLICENSEAPPLY,
+                        F.VCHPREVLICENSEDET,
+                        F.VCHSUBCENTER,
+                        F.DECINCOMETAX1,
+                        F.VCHINCOMETAX1,
+                        F.DECINCOMETAX2,
+                        F.VCHINCOMETAX2,
+                        F.VCHCOMMODITIESADDRESS,
+                        F.INTELECTRICITY,
+                        F.INTPOSAVL,
+                        F.VCHAPPLICANTPHOTO,
+                        F.VCHAPPLICANTMOBILE,
+                        F.VCHAPPLICANTAADHAARNO,
+                        F.INTINTERNET,
+                        L.INTACTTYPE,
+                        CASE
+                            WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                                'RICE'
+                        END VCHPDSCMRICE,
+                        CASE
+                            WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                                'WHEAT'
+                        END VCHPDSCMWHEAT,
+                        CASE
+                            WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                                'KEROSENE'
+                        END VCHPDSCMKOIL,
+                        F.INTPDSCMRICE,
+                        F.INTPDSCMWHEAT,
+                        F.INTPDSCMKOIL,
+                        DECLASTCMRICE,
+                        DECLASTCMWHEAT,
+                        DECLASTCMKOIL,
+                        DECCURCMRICE,
+                        DECCURCMWHEAT,
+                        DECCURCMKOIL,
+                        DECFUTCMRICE,
+                        DECFUTCMWHEAT,
+                        DECFUTCMKOIL,
+                        F.INTFPSTYPE,
+                        L.IntBankdetailsUpdatedstatus,
+                        L.VCHACCOUNTNUMBER,
+                        L.VCHIFSCCODE,
+                        L.INTBANKID,
+                        L.INTBRANCHID,
+                        L.VCHFPSAPPLICANTNAME,
+                        L.INTFPSDESIG AS INTDESIGID,
+                        F.LICENSETYPE AS LICENSETYPE,
+                        L.IntPDSType,
+                        L.IntPDSDistributeStatus,
+                        ISNULL(l.INTOTHERFPSTYPE, 0) INTOTHERFPSTYPE,
+                        (
+                            SELECT vchBankName
+                            FROM M_PDS_FARMERBANK
+                            WHERE intId = L.INTBANKID
+                                  AND INTDELETEDFLAG = 0
+                        ) AS BANKNAME,
+                        (
+                            SELECT vchBranchName
+                            FROM M_PDS_BANKBRANCH
+                            WHERE intBranchId = L.INTBRANCHID
+                                  AND INTDELETEDFLAG = 0
+                        ) AS BRANCHNAME
+                    FROM T_PDS_FPS_LICENSEEDETAILS F
+                        LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                            ON F.INTLICID = L.INTFPSID
+                    WHERE L.INTDELETEDFLAG = 0
+                          AND L.VCHOLDLICENSENO = @P_VCHREFERENCENO
+                          AND F.INTDELETEDFLAG = 0
+                          AND (
+                                  L.INTYEAR = @P_INTFPSID - 1
+                                  OR L.INTYEAR = @P_INTFPSID - 2
+                              )
+                    ORDER BY VCHAPPLICANTNAME,
+                             L.INTYEAR desc
+                END
+            end
+        END
+        ELSE
+        BEGIN
+            SET @COUNT1 = 0
+            SELECT @COUNT1 AS CHECKDATA
+        END
+    --end
+    --else 
+    --begin
+    --SET @COUNT1=0
+    --end 
+    END
+
+    IF (@P_CH_ACTION = 'H')
+    BEGIN
+        DECLARE @COUNT2 INT = 0
+        DECLARE @PAYMENT INT = 0
+        DECLARE @PAYMENT1 INT = 0
+
+        if (@P_INTFPSID = 0)
+        BEGIN
+            IF EXISTS
+            (
+                SELECT INTFPSID
+                FROM M_PDS_FPS_LICENSEAPPLY
+                WHERE INTDELETEDFLAG = 0
+                      AND INTRENEWAPPLYSTATUS = 8
+                      AND ISNULL(VCHLICENSENO, '') = @P_VCHREFERENCENO
+            )
+                SET @COUNT2 = 2
+            ELSE
+            BEGIN
+                IF EXISTS
+                (
+                    SELECT INTFPSID
+                    FROM M_PDS_FPS_LICENSEAPPLY
+                    WHERE INTDELETEDFLAG = 0
+                          AND INTRENEWAPPLYSTATUS = 0
+                          AND INTLEVEL = 0
+                          AND ISNULL(VCHLICENSENO, '') = @P_VCHREFERENCENO
+                )
+                    SET @COUNT2 = 4
+                ELSE
+                    SET @COUNT2 = 0
+
+            END
+            print @COUNT2
+        END
+        ELSE
+        BEGIN
+            IF EXISTS
+            (
+                SELECT INTFPSID
+                FROM M_PDS_FPS_LICENSEAPPLY
+                WHERE INTDELETEDFLAG = 0
+                      AND INTAPPROVESTATUS = 8
+                      AND ISNULL(VCHREFERENCENO, '') = @P_VCHREFERENCENO
+            )
+            BEGIN
+                SET @COUNT2 = 1
+            END
+            ELSE IF EXISTS
+            (
+                SELECT INTFPSID
+                FROM M_PDS_FPS_LICENSEAPPLY
+                WHERE INTDELETEDFLAG = 0
+                      AND ISNULL(VCHREFERENCENO, '') = @P_VCHREFERENCENO
+                      and intExtensionstatus = 2
+                      and VCHLICENSENO is not null
+            )
+            BEGIN
+                SET @COUNT2 = 6
+            END
+            ELSE
+            BEGIN
+                IF EXISTS
+                (
+                    SELECT INTFPSID
+                    FROM M_PDS_FPS_LICENSEAPPLY
+                    WHERE INTDELETEDFLAG = 0
+                          AND INTAPPROVESTATUS = 0
+                          AND INTLEVEL = 0
+                          AND ISNULL(VCHREFERENCENO, '') = @P_VCHREFERENCENO
+                )
+                    SET @COUNT2 = 3
+                ELSE
+                    SET @COUNT2 = 0
+            END
+        END
+        IF @COUNT2 = 1
+        BEGIN
+            SELECT @COUNT2 AS CHECKDATA,
+                   F.INTLICID,
+                   F.VCHAPPLICANTNAME,
+                   F.VCHFATHER,
+                   F.INTCASTE,
+                   F.VCHAPPLPROFESSION,
+                   F.VCHADDRESS,
+                   F.VCHPLACETOACT,
+                   F.VCHPLOTNO,
+                   F.VCHKHATANO,
+                   F.VCHMOUZA,
+                   F.VCHSTREETADDRESS,
+                   F.VCHPINCODE,
+                   F.VCHPOLICESTATION,
+                   F.VCHDISTID,
+                   F.VCHBLOCKID,
+                   F.VCHEASTBOUNDARYDET,
+                   F.VCHNORTHBOUNDARYDET,
+                   F.VCHWESTBOUNDARYDET,
+                   F.VCHSOUTHBOUNDARYDET,
+                   F.INTBUILDINGTYPE,
+                   F.INTROOFTYPE,
+                   F.INTCOMPOUNDWALL,
+                   F.INTSTORAGE,
+                   F.DECSTORAGE,
+                   F.INTOWNERSHIPTYPE,
+                   F.VCHRENTAGREEMENTDET,
+                   F.INTPREVLICENSEAPPLY,
+                   F.VCHPREVLICENSEDET,
+                   F.DECINCOMETAX1,
+                   F.VCHINCOMETAX1,
+                   --SUBSTRING(F.VCHINCOMETAX1,15,45)as VCHINCOMETAX1, 
+                   F.DECINCOMETAX2,
+                   F.VCHINCOMETAX2,
+                   --SUBSTRING(F.VCHINCOMETAX2,15,45)as VCHINCOMETAX2,
+
+                   F.VCHCOMMODITIESADDRESS,
+                   F.INTELECTRICITY,
+                   F.VCHAPPLICANTPHOTO,
+                   --SUBSTRING( F.VCHAPPLICANTPHOTO,15,45) as VCHAPPLICANTPHOTO,
+                   F.VCHAPPLICANTMOBILE,
+                   F.VCHAPPLICANTAADHAARNO,
+                   F.INTINTERNET,
+                   L.INTACTTYPE,
+                   INTPOSAVL,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END VCHPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END VCHPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END VCHPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL,
+                   F.INTPDSCMRICE,
+                   F.INTPDSCMWHEAT,
+                   F.INTPDSCMKOIL,
+				   L.INTFPSDESIG,
+				   L.VCHFPSAPPLICANTNAME
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.VCHREFERENCENO = @P_VCHREFERENCENO
+                  AND F.INTDELETEDFLAG = 0
+            ORDER BY VCHAPPLICANTNAME
+            IF EXISTS
+            (
+                SELECT INTPAYMENTID
+                FROM T_PDS_FPS_PAYMENT
+                WHERE INTDELETEDFLAG = 0
+                      AND VCHREFERENCECODE = @P_VCHREFERENCENO
+            )
+            BEGIN
+
+                SET @PAYMENT = 1
+                SELECT @PAYMENT AS PAYMENT
+            END
+            ELSE
+            BEGIN
+
+                SET @PAYMENT = 0
+                SELECT @PAYMENT AS PAYMENT
+            END
+
+        END
+        ELSE IF @COUNT2 = 2
+        BEGIN
+            SELECT @COUNT2 AS CHECKDATA,
+                   F.INTLICID,
+                   F.VCHAPPLICANTNAME,
+                   F.VCHFATHER,
+                   F.INTCASTE,
+                   F.VCHAPPLPROFESSION,
+                   F.VCHADDRESS,
+                   F.VCHPLACETOACT,
+                   F.VCHPLOTNO,
+                   F.VCHKHATANO,
+                   F.VCHMOUZA,
+                   F.VCHSTREETADDRESS,
+                   F.VCHPINCODE,
+                   F.VCHPOLICESTATION,
+                   F.VCHDISTID,
+                   F.VCHBLOCKID,
+                   F.VCHEASTBOUNDARYDET,
+                   F.VCHNORTHBOUNDARYDET,
+                   F.VCHWESTBOUNDARYDET,
+                   F.VCHSOUTHBOUNDARYDET,
+                   F.INTBUILDINGTYPE,
+                   F.INTROOFTYPE,
+                   F.INTCOMPOUNDWALL,
+                   F.INTSTORAGE,
+                   F.DECSTORAGE,
+                   F.INTOWNERSHIPTYPE,
+                   F.VCHRENTAGREEMENTDET,
+                   F.INTPREVLICENSEAPPLY,
+                   F.VCHPREVLICENSEDET,
+                   F.DECINCOMETAX1,
+                   F.VCHINCOMETAX1,
+                   F.VCHINCOMETAX2,
+                   F.VCHAPPLICANTPHOTO,
+                   --SUBSTRING(F.VCHINCOMETAX1,15,45)as VCHINCOMETAX1, 
+                   F.DECINCOMETAX2,
+                   --SUBSTRING(F.VCHINCOMETAX2,15,45)as VCHINCOMETAX2,
+                   F.VCHCOMMODITIESADDRESS,
+                   F.INTELECTRICITY,
+                   --SUBSTRING( F.VCHAPPLICANTPHOTO,15,45) as VCHAPPLICANTPHOTO,
+                   F.VCHAPPLICANTMOBILE,
+                   F.VCHAPPLICANTAADHAARNO,
+                   F.INTINTERNET,
+                   L.INTACTTYPE,
+                   INTPOSAVL,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END VCHPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END VCHPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END VCHPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL,
+                   F.INTPDSCMRICE,
+                   F.INTPDSCMWHEAT,
+                   F.INTPDSCMKOIL,
+				    L.INTFPSDESIG,
+				   L.VCHFPSAPPLICANTNAME
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.VCHLICENSENO = @P_VCHREFERENCENO
+                  AND F.INTDELETEDFLAG = 0
+            ORDER BY VCHAPPLICANTNAME
+            IF EXISTS
+            (
+                SELECT INTPAYMENTID
+                FROM T_PDS_FPS_PAYMENT
+                WHERE INTDELETEDFLAG = 0
+                      AND VCHREFERENCECODE = @P_VCHREFERENCENO
+            )
+            BEGIN
+
+                SET @PAYMENT = 1
+                SELECT @PAYMENT AS PAYMENT
+            END
+            ELSE
+            BEGIN
+
+                SET @PAYMENT = 0
+                SELECT @PAYMENT AS PAYMENT
+            END
+        END
+        ELSE IF @COUNT2 = 4
+        BEGIN
+            SELECT @COUNT2 AS CHECKDATA,
+                   F.INTLICID,
+                   F.VCHAPPLICANTNAME,
+                   F.VCHFATHER,
+                   F.INTCASTE,
+                   F.VCHAPPLPROFESSION,
+                   F.VCHADDRESS,
+                   F.VCHPLACETOACT,
+                   F.VCHPLOTNO,
+                   F.VCHKHATANO,
+                   F.VCHMOUZA,
+                   F.VCHSTREETADDRESS,
+                   F.VCHPINCODE,
+                   F.VCHPOLICESTATION,
+                   F.VCHDISTID,
+                   F.VCHBLOCKID,
+                   F.VCHEASTBOUNDARYDET,
+                   F.VCHNORTHBOUNDARYDET,
+                   F.VCHWESTBOUNDARYDET,
+                   F.VCHSOUTHBOUNDARYDET,
+                   F.INTBUILDINGTYPE,
+                   F.INTROOFTYPE,
+                   F.INTCOMPOUNDWALL,
+                   F.INTSTORAGE,
+                   F.DECSTORAGE,
+                   F.INTOWNERSHIPTYPE,
+                   F.VCHRENTAGREEMENTDET,
+                   F.INTPREVLICENSEAPPLY,
+                   F.VCHPREVLICENSEDET,
+                   F.DECINCOMETAX1,
+                   F.VCHINCOMETAX1,
+                   F.VCHINCOMETAX2,
+                   F.VCHAPPLICANTPHOTO,
+                   --SUBSTRING(F.VCHINCOMETAX1,15,45)as VCHINCOMETAX1, 
+                   F.DECINCOMETAX2,
+                   --SUBSTRING(F.VCHINCOMETAX2,15,45)as VCHINCOMETAX2,
+                   F.VCHCOMMODITIESADDRESS,
+                   F.INTELECTRICITY,
+                   --SUBSTRING( F.VCHAPPLICANTPHOTO,15,45) as VCHAPPLICANTPHOTO,
+                   F.VCHAPPLICANTMOBILE,
+                   F.VCHAPPLICANTAADHAARNO,
+                   F.INTINTERNET,
+                   L.INTACTTYPE,
+                   INTPOSAVL,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END VCHPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END VCHPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END VCHPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL,
+                   F.INTPDSCMRICE,
+                   F.INTPDSCMWHEAT,
+                   F.INTPDSCMKOIL,
+				    L.INTFPSDESIG,
+				   L.VCHFPSAPPLICANTNAME
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.VCHLICENSENO = @P_VCHREFERENCENO
+                  AND F.INTDELETEDFLAG = 0
+            ORDER BY VCHAPPLICANTNAME
+
+            IF EXISTS
+            (
+                SELECT INTPAYMENTID
+                FROM T_PDS_FPS_PAYMENT
+                WHERE INTDELETEDFLAG = 0
+                      AND VCHREFERENCECODE = @P_VCHREFERENCENO
+            )
+            BEGIN
+
+                SET @PAYMENT1 = 1
+                SELECT @PAYMENT1 AS PAYMENT
+            END
+            ELSE
+            BEGIN
+
+                SET @PAYMENT1 = 0
+                SELECT @PAYMENT1 AS PAYMENT
+            END
+        END
+        ELSE IF @COUNT2 = 3
+        BEGIN
+            SELECT @COUNT2 AS CHECKDATA,
+                   F.INTLICID,
+                   F.VCHAPPLICANTNAME,
+                   F.VCHFATHER,
+                   F.INTCASTE,
+                   F.VCHAPPLPROFESSION,
+                   F.VCHADDRESS,
+                   F.VCHPLACETOACT,
+                   F.VCHPLOTNO,
+                   F.VCHKHATANO,
+                   F.VCHMOUZA,
+                   F.VCHSTREETADDRESS,
+                   F.VCHPINCODE,
+                   F.VCHPOLICESTATION,
+                   F.VCHDISTID,
+                   F.VCHBLOCKID,
+                   F.VCHEASTBOUNDARYDET,
+                   F.VCHNORTHBOUNDARYDET,
+                   F.VCHWESTBOUNDARYDET,
+                   F.VCHSOUTHBOUNDARYDET,
+                   F.INTBUILDINGTYPE,
+                   F.INTROOFTYPE,
+                   F.INTCOMPOUNDWALL,
+                   F.INTSTORAGE,
+                   F.DECSTORAGE,
+                   F.INTOWNERSHIPTYPE,
+                   F.VCHRENTAGREEMENTDET,
+                   F.INTPREVLICENSEAPPLY,
+                   F.VCHPREVLICENSEDET,
+                   F.DECINCOMETAX1,
+                   F.VCHINCOMETAX1,
+                   F.VCHINCOMETAX2,
+                   F.VCHAPPLICANTPHOTO,
+                   --SUBSTRING(F.VCHINCOMETAX1,15,45)as VCHINCOMETAX1, 
+                   F.DECINCOMETAX2,
+                   --SUBSTRING(F.VCHINCOMETAX2,15,45)as VCHINCOMETAX2,
+                   F.VCHCOMMODITIESADDRESS,
+                   F.INTELECTRICITY,
+                   --SUBSTRING( F.VCHAPPLICANTPHOTO,15,45) as VCHAPPLICANTPHOTO,
+                   F.VCHAPPLICANTMOBILE,
+                   F.VCHAPPLICANTAADHAARNO,
+                   F.INTINTERNET,
+                   L.INTACTTYPE,
+                   INTPOSAVL,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END VCHPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END VCHPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END VCHPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL,
+                   F.INTPDSCMRICE,
+                   F.INTPDSCMWHEAT,
+                   F.INTPDSCMKOIL,
+				    L.INTFPSDESIG,
+				   L.VCHFPSAPPLICANTNAME
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.VCHREFERENCENO = @P_VCHREFERENCENO
+                  AND F.INTDELETEDFLAG = 0
+            ORDER BY VCHAPPLICANTNAME
+
+            IF EXISTS
+            (
+                SELECT INTPAYMENTID
+                FROM T_PDS_FPS_PAYMENT
+                WHERE INTDELETEDFLAG = 0
+                      AND VCHREFERENCECODE = @P_VCHREFERENCENO
+            )
+            BEGIN
+
+                SET @PAYMENT = 1
+                SELECT @PAYMENT AS PAYMENT
+            END
+            ELSE
+            BEGIN
+
+                SET @PAYMENT = 0
+                SELECT @PAYMENT AS PAYMENT
+            END
+        END
+        ELSE IF @COUNT2 = 6
+        begin
+            SELECT @COUNT2 AS CHECKDATA,
+                   F.INTLICID,
+                   F.VCHAPPLICANTNAME,
+                   F.VCHFATHER,
+                   F.INTCASTE,
+                   F.VCHAPPLPROFESSION,
+                   F.VCHADDRESS,
+                   F.VCHPLACETOACT,
+                   F.VCHPLOTNO,
+                   F.VCHKHATANO,
+                   F.VCHMOUZA,
+                   F.VCHSTREETADDRESS,
+                   F.VCHPINCODE,
+                   F.VCHPOLICESTATION,
+                   F.VCHDISTID,
+                   F.VCHBLOCKID,
+                   F.VCHEASTBOUNDARYDET,
+                   F.VCHNORTHBOUNDARYDET,
+                   F.VCHWESTBOUNDARYDET,
+                   F.VCHSOUTHBOUNDARYDET,
+                   F.INTBUILDINGTYPE,
+                   F.INTROOFTYPE,
+                   F.INTCOMPOUNDWALL,
+                   F.INTSTORAGE,
+                   F.DECSTORAGE,
+                   F.INTOWNERSHIPTYPE,
+                   F.VCHRENTAGREEMENTDET,
+                   F.INTPREVLICENSEAPPLY,
+                   F.VCHPREVLICENSEDET,
+                   F.DECINCOMETAX1,
+                   F.VCHINCOMETAX1,
+                   F.VCHINCOMETAX2,
+                   F.VCHAPPLICANTPHOTO,
+                   --SUBSTRING(F.VCHINCOMETAX1,15,45)as VCHINCOMETAX1, 
+                   F.DECINCOMETAX2,
+                   --SUBSTRING(F.VCHINCOMETAX2,15,45)as VCHINCOMETAX2, 
+                   F.VCHCOMMODITIESADDRESS,
+                   F.INTELECTRICITY,
+                   --SUBSTRING( F.VCHAPPLICANTPHOTO,15,45) as VCHAPPLICANTPHOTO,
+                   F.VCHAPPLICANTMOBILE,
+                   F.VCHAPPLICANTAADHAARNO,
+                   F.INTINTERNET,
+                   L.INTACTTYPE,
+                   INTPOSAVL,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END VCHPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END VCHPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END VCHPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL,
+                   F.INTPDSCMRICE,
+                   F.INTPDSCMWHEAT,
+                   F.INTPDSCMKOIL,
+				    L.INTFPSDESIG,
+				   L.VCHFPSAPPLICANTNAME
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.VCHREFERENCENO = @P_VCHREFERENCENO
+                  AND F.INTDELETEDFLAG = 0
+            ORDER BY VCHAPPLICANTNAME
+
+            SET @PAYMENT = 0
+            SELECT @PAYMENT AS PAYMENT
+
+            declare @status1 int;
+            set @status1 =
+            (
+                select intExtensionstatus
+                from M_PDS_FPS_LICENSEAPPLY
+                where VCHREFERENCENO = @P_VCHREFERENCENO
+            )
+            select @status1 as ExtensionStatus
+        end
+        ELSE IF @COUNT2 = 0
+        BEGIN
+            SELECT @COUNT2 AS CHECKDATA
+            SELECT 2 AS PAYMENT
+        END
+    END
+
+    IF (@P_CH_ACTION = 'AT')
+    BEGIN
+        SELECT MP.INTFPSID,
+               MP.VCHLICENSENO,
+               MP.VCHOLDLICENSENO,
+               MP.VCHREFERENCENO,
+               MP.INTAPPROVESTATUS,
+               Convert(varchar(20), MP.DTMCREATEDON, 106) DTMCREATEDON,
+               TP.VCHAPPLICANTNAME,
+               TP.VCHADDRESS,
+               TP.VCHPINCODE,
+               TP.VCHAPPLICANTMOBILE,
+               D.vch_DistrictName as DISTNAME
+        FROM M_PDS_FPS_LICENSEAPPLY MP
+            INNER JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                ON MP.INTFPSID = TP.INTLICID
+            LEFT JOIN PDS_DISTRICTMASTER D
+                ON TP.VCHDISTID = D.INT_DISTRICTID
+        WHERE MP.INTDELETEDFLAG = 0
+              AND MP.VCHLICENSENO = @P_VCHREFERENCENO
+
+        SELECT CASE
+                   WHEN ISNULL(UM.ApplicantName, '') = '' THEN
+                   (
+                       SELECT VCHAPPLICANTNAME
+                       FROM T_PDS_FPS_LICENSEEDETAILS TP
+                           LEFT JOIN M_PDS_FPS_LICENSEAPPLY MP
+                               ON TP.INTLICID = MP.INTFPSID
+                       WHERE MP.VCHLICENSENO = @P_VCHREFERENCENO
+                             AND TP.INTDELETEDFLAG = 0
+                   )
+                   ELSE
+                       UM.ApplicantName
+               END AS FULLNAME,
+               APP.VCHREMARK,
+               CASE
+                   WHEN INTAPPROVALSTATUS = 0 THEN
+                       'Applicant'
+                   else
+                       DESMASTER.NVCH_DESIGNAME
+               END As NVCH_DESIGNAME,
+               APP.DTMCREATEDON AS CREATEDON,
+               CASE
+                   WHEN INTAPPROVALSTATUS = 0 THEN
+                       'Applied'
+                   WHEN INTAPPROVALSTATUS = 4 THEN
+                       'Granted'
+                   WHEN INTAPPROVALSTATUS = 6 THEN
+                       'Approved'
+                   WHEN INTAPPROVALSTATUS = 7 THEN
+                       'Rejected'
+                   WHEN INTAPPROVALSTATUS = 2 THEN
+                       'Recommended'
+                   WHEN INTAPPROVALSTATUS = 8 THEN
+                       'Not-Recommended'
+               END AS VCHAPPROVESTATUS,
+               CASE
+                   WHEN MP.INTAPPROVESTATUS = 4 THEN
+                       'Application Granted'
+                   WHEN MP.INTAPPROVESTATUS = 7 THEN
+                       'Application Rejected'
+                   ELSE
+                       'Pending at ' + ISNULL(DESMASTER.NVCH_ALIASNAME, DESMASTER.NVCH_designame)
+               END AS PENDINGAT
+        from M_PDS_FPS_APPROVAL APP
+            LEFT JOIN USERMASTER UM
+                ON APP.INTACTIONTAKENBY = UM.INT_USERID
+            LEFT JOIN DESIGNATIONMASTER DESMASTER
+                ON APP.INT_DESIGNATION = DESMASTER.INT_DESIGNATIONID
+            LEFT JOIN M_PDS_FPS_LICENSEAPPLY MP
+                ON APP.INTFPSLICID = MP.INTFPSID
+
+        --LEFT JOIN USERMASTER UM ON APP.INTACTIONTAKENBY=UM.INT_USERID
+        --LEFT JOIN DESIGNATIONMASTER DESI ON APP.INT_DESIGNATION=DESI.INT_DESIGNATIONID
+        --JOIN M_LMA_SETAUTHORITY AUTH ON MP.INTACTTYPE=INTMODULE
+        --LEFT JOIN T_LMA_SETAUTHORITY_LEVEL AUTHLVL ON AUTHLVL.INTSETID=AUTH.INTID AND (CASE WHEN MP.INTLEVEL=AUTH.INTNOOFAPPROVAL THEN MP.INTLEVEL ELSE MP.INTLEVEL+1 END)=AUTHLVL.INTAUTHORITYLEVEL
+        --LEFT JOIN DESIGNATIONMASTER DESMASTER ON DESMASTER.INT_DESIGNATIONID=AUTHLVL.INTDESIGNATION
+        WHERE MP.VCHLICENSENO = @P_VCHREFERENCENO
+              AND APP.INTDELETEDFLAG = 0
+              AND APP.INTAPPROVALSTATUS <> 0
+              AND APP.INTLEVEL <> 0
+
+    END
+
+    IF (@P_CH_ACTION = 'NT')
+    BEGIN
+        SELECT MP.INTFPSID,
+               MP.VCHLICENSENO,
+               MP.VCHOLDLICENSENO,
+               MP.VCHREFERENCENO,
+               MP.INTAPPROVESTATUS,
+               Convert(varchar(20), MP.DTMCREATEDON, 106) DTMCREATEDON,
+               TP.VCHAPPLICANTNAME,
+               TP.VCHADDRESS,
+               TP.VCHPINCODE,
+               TP.VCHAPPLICANTMOBILE,
+               D.vch_DistrictName as DISTNAME
+        FROM M_PDS_FPS_LICENSEAPPLY MP
+            INNER JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                ON MP.INTFPSID = TP.INTLICID
+            LEFT JOIN PDS_DISTRICTMASTER D
+                ON TP.VCHDISTID = D.INT_DISTRICTID
+        WHERE MP.INTDELETEDFLAG = 0
+              AND MP.VCHREFERENCENO = @P_VCHREFERENCENO
+        SELECT CASE
+                   WHEN ISNULL(UM.ApplicantName, '') = '' THEN
+                   (
+                       SELECT VCHAPPLICANTNAME
+                       FROM T_PDS_FPS_LICENSEEDETAILS TP
+                           LEFT JOIN M_PDS_FPS_LICENSEAPPLY MP
+                               ON TP.INTLICID = MP.INTFPSID
+                       WHERE MP.VCHREFERENCENO = @P_VCHREFERENCENO
+                             AND TP.INTDELETEDFLAG = 0
+                   )
+                   ELSE
+                       UM.ApplicantName
+               END AS FULLNAME,
+               APP.VCHREMARK,
+               CASE
+                   WHEN INTAPPROVALSTATUS = 0 THEN
+                       'Applicant'
+                   else
+                       DESMASTER.NVCH_DESIGNAME
+               END As NVCH_DESIGNAME,
+               APP.DTMCREATEDON AS CREATEDON,
+               CASE
+                   WHEN INTAPPROVALSTATUS = 0 THEN
+                       'Applied'
+                   WHEN INTAPPROVALSTATUS = 4 THEN
+                       'Granted'
+                   WHEN INTAPPROVALSTATUS = 6 THEN
+                       'Approved'
+                   WHEN INTAPPROVALSTATUS = 7 THEN
+                       'Rejected'
+                   WHEN INTAPPROVALSTATUS = 2 THEN
+                       'Recommended'
+                   WHEN INTAPPROVALSTATUS = 8 THEN
+                       'Not-Recommended'
+               END AS VCHAPPROVESTATUS,
+               CASE
+                   WHEN MP.INTAPPROVESTATUS = 4 THEN
+                       'Application Granted'
+                   WHEN MP.INTAPPROVESTATUS = 7 THEN
+                       'Application Rejected'
+                   ELSE
+                       'Pending at ' + ISNULL(DESMASTER.NVCH_ALIASNAME, DESMASTER.NVCH_designame)
+               END AS PENDINGAT
+        from M_PDS_FPS_APPROVAL APP
+            LEFT JOIN USERMASTER UM
+                ON APP.INTACTIONTAKENBY = UM.INT_USERID
+            LEFT JOIN DESIGNATIONMASTER DESMASTER
+                ON APP.INT_DESIGNATION = DESMASTER.INT_DESIGNATIONID
+            LEFT JOIN M_PDS_FPS_LICENSEAPPLY MP
+                ON APP.INTFPSLICID = MP.INTFPSID
+        --LEFT JOIN USERMASTER UM ON APP.INTACTIONTAKENBY=UM.INT_USERID
+        --LEFT JOIN DESIGNATIONMASTER DESI ON APP.INT_DESIGNATION=DESI.INT_DESIGNATIONID
+        --JOIN M_LMA_SETAUTHORITY AUTH ON MP.INTACTTYPE=INTMODULE
+        --LEFT JOIN T_LMA_SETAUTHORITY_LEVEL AUTHLVL ON AUTHLVL.INTSETID=AUTH.INTID AND (CASE WHEN MP.INTLEVEL=AUTH.INTNOOFAPPROVAL THEN MP.INTLEVEL ELSE MP.INTLEVEL+1 END)=AUTHLVL.INTAUTHORITYLEVEL
+        --LEFT JOIN DESIGNATIONMASTER DESMASTER ON DESMASTER.INT_DESIGNATIONID=AUTHLVL.INTDESIGNATION
+        WHERE MP.VCHREFERENCENO = @P_VCHREFERENCENO
+              AND APP.INTDELETEDFLAG = 0
+              AND APP.INTAPPROVALSTATUS <> 0
+              AND APP.INTLEVEL <> 0
+
+    END
+
+    IF (@P_CH_ACTION = 'RP') --FOR DISTRICT WISE VIEW
+    BEGIN
+        IF (@P_VCHREFERENCENO <> '' AND @P_INTFPSID = 0)
+        BEGIN
+            SELECT INT_DISTRICTID AS ID,
+                   VCH_DISTRICTNAME AS NAME,
+                   (
+                       SELECT COUNT(INTLICID)
+                       FROM T_PDS_FPS_LICENSEEDETAILS S
+                           LEFT JOIN M_PDS_FPS_LICENSEAPPLY MP
+                               ON S.INTLICID = MP.INTFPSID
+                       WHERE S.VCHDISTID = D.INT_DISTRICTID
+                             AND S.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             and MP.INTDELETEDFLAG = 0
+                   ) TOTAPPLY,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND MP.INTAPPROVESTATUS = 4
+                             AND MP.VCHLICENSENO IS NOT NULL
+                   ) LICGENERATED,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND (
+                                     MP.INTAPPROVESTATUS = 7
+                                     OR MP.INTAPPROVESTATUS = 8
+                                 )
+                   ) LICREJECTED,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND (
+                                     MP.INTAPPROVESTATUS = 6
+                                     OR MP.INTAPPROVESTATUS = 2
+                                     OR MP.INTAPPROVESTATUS = 0
+                                 )
+                   ) LICPENDING
+            FROM PDS_DISTRICTMASTER D
+            WHERE D.int_DistrictID = @P_VCHREFERENCENO
+        END
+        ELSE IF (@P_INTFPSID <> 0 AND @P_VCHREFERENCENO = '')
+        BEGIN
+            SELECT INT_DISTRICTID AS ID,
+                   VCH_DISTRICTNAME AS NAME,
+                   (
+                       SELECT COUNT(INTLICID)
+                       FROM T_PDS_FPS_LICENSEEDETAILS TP
+                           LEFT JOIN M_PDS_FPS_LICENSEAPPLY MP
+                               ON TP.INTLICID = MP.INTFPSID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND TP.INTDELETEDFLAG = 0
+                             AND MP.INTACTTYPE = @P_INTFPSID
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                   ) TOTAPPLY,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTACTTYPE = @P_INTFPSID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND MP.INTAPPROVESTATUS = 4
+                             AND MP.VCHLICENSENO IS NOT NULL
+                   ) LICGENERATED,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTACTTYPE = @P_INTFPSID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND (
+                                     MP.INTAPPROVESTATUS = 7
+                                     OR MP.INTAPPROVESTATUS = 8
+                                 )
+                   ) LICREJECTED,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTACTTYPE = @P_INTFPSID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND (
+                                     MP.INTAPPROVESTATUS = 6
+                                     OR MP.INTAPPROVESTATUS = 2
+                                     OR MP.INTAPPROVESTATUS = 0
+                                 )
+                   ) LICPENDING
+            FROM PDS_DISTRICTMASTER D
+        END
+        ELSE IF (@P_VCHREFERENCENO <> '' AND @P_INTFPSID <> 0)
+        BEGIN
+            SELECT INT_DISTRICTID AS ID,
+                   VCH_DISTRICTNAME AS NAME,
+                   (
+                       SELECT COUNT(INTLICID)
+                       FROM T_PDS_FPS_LICENSEEDETAILS TP
+                           LEFT JOIN M_PDS_FPS_LICENSEAPPLY MP
+                               ON TP.INTLICID = MP.INTFPSID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND TP.INTDELETEDFLAG = 0
+                             AND MP.INTACTTYPE = @P_INTFPSID
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                   ) TOTAPPLY,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTACTTYPE = @P_INTFPSID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND MP.INTAPPROVESTATUS = 4
+                             AND MP.VCHLICENSENO IS NOT NULL
+                   ) LICGENERATED,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTACTTYPE = @P_INTFPSID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND (
+                                     MP.INTAPPROVESTATUS = 7
+                                     OR MP.INTAPPROVESTATUS = 8
+                                 )
+                   ) LICREJECTED,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTACTTYPE = @P_INTFPSID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND (
+                                     MP.INTAPPROVESTATUS = 6
+                                     OR MP.INTAPPROVESTATUS = 2
+                                     OR MP.INTAPPROVESTATUS = 0
+                                 )
+                   ) LICPENDING
+            FROM PDS_DISTRICTMASTER D
+            WHERE D.int_DistrictID = @P_VCHREFERENCENO
+        END
+        ELSE
+        BEGIN
+            SELECT INT_DISTRICTID AS ID,
+                   VCH_DISTRICTNAME AS NAME,
+                   (
+                       SELECT COUNT(INTLICID)
+                       FROM T_PDS_FPS_LICENSEEDETAILS S
+                           LEFT JOIN M_PDS_FPS_LICENSEAPPLY MP
+                               ON S.INTLICID = MP.INTFPSID
+                       WHERE S.VCHDISTID = D.INT_DISTRICTID
+                             AND S.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             and MP.INTDELETEDFLAG = 0
+                   ) TOTAPPLY,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND MP.INTAPPROVESTATUS = 4
+                             AND MP.VCHLICENSENO IS NOT NULL
+                   ) LICGENERATED,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND (
+                                     MP.INTAPPROVESTATUS = 7
+                                     OR MP.INTAPPROVESTATUS = 8
+                                 )
+                   ) LICREJECTED,
+                   (
+                       SELECT COUNT(INTFPSID)
+                       FROM M_PDS_FPS_LICENSEAPPLY MP
+                           LEFT JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                               ON MP.INTFPSID = TP.INTLICID
+                       WHERE TP.VCHDISTID = D.INT_DISTRICTID
+                             AND MP.INTDELETEDFLAG = 0
+                             AND MP.INTYEAR = @P_INTLICSTATUS
+                             AND (
+                                     MP.INTAPPROVESTATUS = 6
+                                     OR MP.INTAPPROVESTATUS = 2
+                                     OR MP.INTAPPROVESTATUS = 0
+                                 )
+                   ) LICPENDING
+            FROM PDS_DISTRICTMASTER D
+        END
+    END
+
+    IF (@P_CH_ACTION = 'RD') --FOR DISTRICT WISE VIEW DETAIL OF TOTAL LIST
+    BEGIN
+        IF (@P_INTFPSID = 0)
+        BEGIN
+            SELECT MP.INTFPSID,
+                   MP.VCHLICENSENO,
+                   MP.VCHOLDLICENSENO,
+                   MP.VCHREFERENCENO,
+                   MP.INTAPPROVESTATUS,
+                   Convert(varchar(20), MP.DTMCREATEDON, 106) DTMCREATEDON,
+                   TP.VCHAPPLICANTNAME,
+                   TP.VCHADDRESS,
+                   D.vch_DistrictName,
+                   TP.VCHAPPLICANTMOBILE,
+                   TP.VCHPLOTNO,
+                   CASE
+                       WHEN MP.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN MP.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS INTAPPLACTTYPE,
+                   MP.VCHAPPLICANTMOBILE
+            FROM M_PDS_FPS_LICENSEAPPLY MP
+                INNER JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                    ON MP.INTFPSID = TP.INTLICID
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON TP.VCHDISTID = D.INT_DISTRICTID
+            WHERE MP.INTDELETEDFLAG = 0
+                  AND (
+                          TP.VCHDISTID = @P_VCHREFERENCENO
+                          OR TP.VCHBLOCKID = @P_VCHREFERENCENO
+                      )
+                  AND MP.INTYEAR = @P_INTLICSTATUS
+        END
+        ELSE
+        BEGIN
+            SELECT MP.INTFPSID,
+                   MP.VCHLICENSENO,
+                   MP.VCHOLDLICENSENO,
+                   MP.VCHREFERENCENO,
+                   MP.INTAPPROVESTATUS,
+                   Convert(varchar(20), MP.DTMCREATEDON, 106) DTMCREATEDON,
+                   TP.VCHAPPLICANTNAME,
+                   TP.VCHADDRESS,
+                   D.vch_DistrictName,
+                   TP.VCHAPPLICANTMOBILE,
+                   TP.VCHPLOTNO,
+                   CASE
+                       WHEN MP.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN MP.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS INTAPPLACTTYPE,
+                   MP.VCHAPPLICANTMOBILE
+            FROM M_PDS_FPS_LICENSEAPPLY MP
+                INNER JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                    ON MP.INTFPSID = TP.INTLICID
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON TP.VCHDISTID = D.INT_DISTRICTID
+            WHERE MP.INTDELETEDFLAG = 0
+                  AND (
+                          TP.VCHDISTID = @P_VCHREFERENCENO
+                          OR TP.VCHBLOCKID = @P_VCHREFERENCENO
+                      )
+                  AND MP.INTACTTYPE = @P_INTFPSID
+                  AND MP.INTYEAR = @P_INTLICSTATUS
+        END
+
+    END
+
+    IF (@P_CH_ACTION = 'RA') --FOR DISTRICT WISE VIEW Detail OF APPROVE LIST
+    BEGIN
+        IF (@P_INTFPSID = 0)
+        BEGIN
+            SELECT MP.INTFPSID,
+                   MP.VCHLICENSENO,
+                   MP.VCHOLDLICENSENO,
+                   MP.VCHREFERENCENO,
+                   MP.INTAPPROVESTATUS,
+                   Convert(varchar(20), MP.DTMCREATEDON, 106) DTMCREATEDON,
+                   TP.VCHAPPLICANTNAME,
+                   TP.VCHADDRESS,
+                   D.vch_DistrictName,
+                   TP.VCHAPPLICANTMOBILE,
+                   TP.VCHPLOTNO,
+                   CASE
+                       WHEN MP.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN MP.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS INTAPPLACTTYPE
+            FROM M_PDS_FPS_LICENSEAPPLY MP
+                INNER JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                    ON MP.INTFPSID = TP.INTLICID
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON TP.VCHDISTID = D.INT_DISTRICTID
+            WHERE MP.INTDELETEDFLAG = 0
+                  AND (
+                          TP.VCHDISTID = @P_VCHREFERENCENO
+                          OR TP.VCHBLOCKID = @P_VCHREFERENCENO
+                      )
+                  AND MP.INTAPPROVESTATUS = 4
+                  AND MP.INTYEAR = @P_INTLICSTATUS
+        END
+        ELSE
+        BEGIN
+            SELECT MP.INTFPSID,
+                   MP.VCHLICENSENO,
+                   MP.VCHOLDLICENSENO,
+                   MP.VCHREFERENCENO,
+                   MP.INTAPPROVESTATUS,
+                   Convert(varchar(20), MP.DTMCREATEDON, 106) DTMCREATEDON,
+                   TP.VCHAPPLICANTNAME,
+                   TP.VCHADDRESS,
+                   D.vch_DistrictName,
+                   TP.VCHAPPLICANTMOBILE,
+                   TP.VCHPLOTNO,
+                   CASE
+                       WHEN MP.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN MP.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS INTAPPLACTTYPE
+            FROM M_PDS_FPS_LICENSEAPPLY MP
+                INNER JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                    ON MP.INTFPSID = TP.INTLICID
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON TP.VCHDISTID = D.INT_DISTRICTID
+            WHERE MP.INTDELETEDFLAG = 0
+                  AND (
+                          TP.VCHDISTID = @P_VCHREFERENCENO
+                          OR TP.VCHBLOCKID = @P_VCHREFERENCENO
+                      )
+                  AND MP.INTAPPROVESTATUS = 4
+                  AND MP.INTACTTYPE = @P_INTFPSID
+                  AND MP.INTYEAR = @P_INTLICSTATUS
+        END
+
+    END
+    IF (@P_CH_ACTION = 'RR') --FOR DISTRICT WISE VIEW Detail OF REJECT LIST
+    BEGIN
+        IF (@P_INTFPSID = 0)
+        BEGIN
+            SELECT MP.INTFPSID,
+                   MP.VCHLICENSENO,
+                   MP.VCHOLDLICENSENO,
+                   MP.VCHREFERENCENO,
+                   MP.INTAPPROVESTATUS,
+                   Convert(varchar(20), MP.DTMCREATEDON, 106) DTMCREATEDON,
+                   TP.VCHAPPLICANTNAME,
+                   TP.VCHADDRESS,
+                   D.vch_DistrictName,
+                   TP.VCHAPPLICANTMOBILE,
+                   TP.VCHPLOTNO,
+                   CASE
+                       WHEN MP.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN MP.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS INTAPPLACTTYPE
+            FROM M_PDS_FPS_LICENSEAPPLY MP
+                INNER JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                    ON MP.INTFPSID = TP.INTLICID
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON TP.VCHDISTID = D.INT_DISTRICTID
+            WHERE (
+                      TP.VCHDISTID = @P_VCHREFERENCENO
+                      OR TP.VCHBLOCKID = @P_VCHREFERENCENO
+                  )
+                  AND (
+                          MP.INTAPPROVESTATUS = 7
+                          OR MP.INTAPPROVESTATUS = 8
+                      )
+                  AND MP.INTYEAR = @P_INTLICSTATUS
+        END
+        ELSE
+        BEGIN
+            SELECT MP.INTFPSID,
+                   MP.VCHLICENSENO,
+                   MP.VCHOLDLICENSENO,
+                   MP.VCHREFERENCENO,
+                   MP.INTAPPROVESTATUS,
+                   Convert(varchar(20), MP.DTMCREATEDON, 106) DTMCREATEDON,
+                   TP.VCHAPPLICANTNAME,
+                   TP.VCHADDRESS,
+                   D.vch_DistrictName,
+                   TP.VCHAPPLICANTMOBILE,
+                   TP.VCHPLOTNO,
+                   CASE
+                       WHEN MP.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN MP.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS INTAPPLACTTYPE
+            FROM M_PDS_FPS_LICENSEAPPLY MP
+                INNER JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                    ON MP.INTFPSID = TP.INTLICID
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON TP.VCHDISTID = D.INT_DISTRICTID
+            WHERE (
+                      TP.VCHDISTID = @P_VCHREFERENCENO
+                      OR TP.VCHBLOCKID = @P_VCHREFERENCENO
+                  )
+                  AND (
+                          MP.INTAPPROVESTATUS = 7
+                          OR MP.INTAPPROVESTATUS = 8
+                      )
+                  AND MP.INTACTTYPE = @P_INTFPSID
+                  AND MP.INTYEAR = @P_INTLICSTATUS
+        END
+
+    END
+    IF (@P_CH_ACTION = 'RE') --FOR DISTRICT WISE VIEW Detail OF PENDING LIST
+    BEGIN
+        IF (@P_INTFPSID = 0)
+        BEGIN
+            SELECT MP.INTFPSID,
+                   MP.VCHLICENSENO,
+                   MP.VCHOLDLICENSENO,
+                   MP.VCHREFERENCENO,
+                   MP.INTAPPROVESTATUS,
+                   Convert(varchar(20), MP.DTMCREATEDON, 106) DTMCREATEDON,
+                   TP.VCHAPPLICANTNAME,
+                   TP.VCHADDRESS,
+                   D.vch_DistrictName,
+                   TP.VCHAPPLICANTMOBILE,
+                   TP.VCHPLOTNO,
+                   CASE
+                       WHEN MP.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN MP.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS INTAPPLACTTYPE
+            FROM M_PDS_FPS_LICENSEAPPLY MP
+                INNER JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                    ON MP.INTFPSID = TP.INTLICID
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON TP.VCHDISTID = D.INT_DISTRICTID
+            WHERE MP.INTDELETEDFLAG = 0
+                  AND (
+                          TP.VCHDISTID = @P_VCHREFERENCENO
+                          OR TP.VCHBLOCKID = @P_VCHREFERENCENO
+                      )
+                  AND (
+                          MP.INTAPPROVESTATUS = 6
+                          OR MP.INTAPPROVESTATUS = 2
+                          OR MP.INTAPPROVESTATUS = 0
+                      )
+                  AND MP.INTYEAR = @P_INTLICSTATUS
+        END
+        ELSE
+        BEGIN
+            SELECT MP.INTFPSID,
+                   MP.VCHLICENSENO,
+                   MP.VCHOLDLICENSENO,
+                   MP.VCHREFERENCENO,
+                   MP.INTAPPROVESTATUS,
+                   Convert(varchar(20), MP.DTMCREATEDON, 106) DTMCREATEDON,
+                   TP.VCHAPPLICANTNAME,
+                   TP.VCHADDRESS,
+                   D.vch_DistrictName,
+                   TP.VCHAPPLICANTMOBILE,
+                   TP.VCHPLOTNO,
+                   CASE
+                       WHEN MP.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN MP.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS INTAPPLACTTYPE
+            FROM M_PDS_FPS_LICENSEAPPLY MP
+                INNER JOIN T_PDS_FPS_LICENSEEDETAILS TP
+                    ON MP.INTFPSID = TP.INTLICID
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON TP.VCHDISTID = D.INT_DISTRICTID
+            WHERE MP.INTDELETEDFLAG = 0
+                  AND (
+                          TP.VCHDISTID = @P_VCHREFERENCENO
+                          OR TP.VCHBLOCKID = @P_VCHREFERENCENO
+                      )
+                  AND (
+                          MP.INTAPPROVESTATUS = 6
+                          OR MP.INTAPPROVESTATUS = 2
+                          OR MP.INTAPPROVESTATUS = 0
+                      )
+                  AND MP.INTACTTYPE = @P_INTFPSID
+                  AND MP.INTYEAR = @P_INTLICSTATUS
+        END
+
+    END
+
+    IF (@P_CH_ACTION = 'P') -- GET USER DATA FOR FILL DATA
+    BEGIN
+        select VCHREFERENCECODE,
+               INTPAYMODE,
+               DECAMOUNT,
+               VCHCHALLAN,
+               convert(varchar(20), DTMCHALLAN, 106) DTMCHALLAN
+        from T_PDS_FPS_PAYMENT
+        where INTDELETEDFLAG = 0
+              and VCHREFERENCECODE = @P_VCHREFERENCENO
+    END
+
+    IF (@P_CH_ACTION = 'H1')
+    BEGIN
+        DECLARE @COUNT3 INT = 0
+
+        if (@P_INTFPSID = 0)
+        BEGIN
+            IF EXISTS
+            (
+                SELECT INTFPSID
+                FROM M_PDS_FPS_LICENSEAPPLY
+                WHERE INTDELETEDFLAG = 0
+                      AND ISNULL(VCHLICENSENO, '') = @P_VCHREFERENCENO
+            )
+                SET @COUNT3 = 2
+            ELSE
+            BEGIN
+                SET @COUNT3 = 0
+            END
+
+        END
+        ELSE
+        BEGIN
+            IF EXISTS
+            (
+                SELECT INTFPSID
+                FROM M_PDS_FPS_LICENSEAPPLY
+                WHERE INTDELETEDFLAG = 0
+                      AND ISNULL(VCHREFERENCENO, '') = @P_VCHREFERENCENO
+            )
+                SET @COUNT3 = 1
+            ELSE
+            BEGIN
+                SET @COUNT3 = 0
+            END
+        END
+        IF @COUNT3 = 1
+        BEGIN
+            SELECT @COUNT3 AS CHECKDATA,
+                   F.INTLICID,
+                   F.VCHAPPLICANTNAME,
+                   F.VCHFATHER,
+                   F.INTCASTE,
+                   F.VCHAPPLPROFESSION,
+                   F.VCHADDRESS,
+                   F.VCHPLACETOACT,
+                   F.VCHPLOTNO,
+                   F.VCHKHATANO,
+                   F.VCHMOUZA,
+                   F.VCHSTREETADDRESS,
+                   F.VCHPINCODE,
+                   F.VCHPOLICESTATION,
+                   F.VCHDISTID,
+                   F.VCHEASTBOUNDARYDET,
+                   F.VCHNORTHBOUNDARYDET,
+                   F.VCHWESTBOUNDARYDET,
+                   F.VCHSOUTHBOUNDARYDET,
+                   F.INTBUILDINGTYPE,
+                   F.INTROOFTYPE,
+                   F.INTCOMPOUNDWALL,
+                   F.INTSTORAGE,
+                   F.DECSTORAGE,
+                   F.INTOWNERSHIPTYPE,
+                   F.VCHRENTAGREEMENTDET,
+                   F.INTPREVLICENSEAPPLY,
+                   F.VCHPREVLICENSEDET,
+                   F.DECINCOMETAX1,
+                   F.VCHINCOMETAX1,
+                   F.DECINCOMETAX2,
+                   F.VCHINCOMETAX2,
+                   F.VCHCOMMODITIESADDRESS,
+                   F.INTELECTRICITY,
+                   F.VCHAPPLICANTPHOTO,
+                   F.VCHAPPLICANTMOBILE,
+                   F.VCHAPPLICANTAADHAARNO,
+                   F.INTINTERNET,
+                   L.INTACTTYPE,
+                   INTPOSAVL,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END INTPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END INTPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END INTPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.VCHREFERENCENO = @P_VCHREFERENCENO
+                  AND F.INTDELETEDFLAG = 0
+
+
+        END
+        ELSE IF @COUNT3 = 2
+        BEGIN
+            SELECT @COUNT3 AS CHECKDATA,
+                   F.INTLICID,
+                   F.VCHAPPLICANTNAME,
+                   F.VCHFATHER,
+                   F.INTCASTE,
+                   F.VCHAPPLPROFESSION,
+                   F.VCHADDRESS,
+                   F.VCHPLACETOACT,
+                   F.VCHPLOTNO,
+                   F.VCHKHATANO,
+                   F.VCHMOUZA,
+                   F.VCHSTREETADDRESS,
+                   F.VCHPINCODE,
+                   F.VCHPOLICESTATION,
+                   F.VCHDISTID,
+                   F.VCHEASTBOUNDARYDET,
+                   F.VCHNORTHBOUNDARYDET,
+                   F.VCHWESTBOUNDARYDET,
+                   F.VCHSOUTHBOUNDARYDET,
+                   F.INTBUILDINGTYPE,
+                   F.INTROOFTYPE,
+                   F.INTCOMPOUNDWALL,
+                   F.INTSTORAGE,
+                   F.DECSTORAGE,
+                   F.INTOWNERSHIPTYPE,
+                   F.VCHRENTAGREEMENTDET,
+                   F.INTPREVLICENSEAPPLY,
+                   F.VCHPREVLICENSEDET,
+                   F.DECINCOMETAX1,
+                   F.VCHINCOMETAX1,
+                   F.DECINCOMETAX2,
+                   F.VCHINCOMETAX2,
+                   F.VCHCOMMODITIESADDRESS,
+                   F.INTELECTRICITY,
+                   F.VCHAPPLICANTPHOTO,
+                   F.VCHAPPLICANTMOBILE,
+                   F.VCHAPPLICANTAADHAARNO,
+                   F.INTINTERNET,
+                   L.INTACTTYPE,
+                   INTPOSAVL,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END INTPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END INTPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END INTPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL
+            FROM T_PDS_FPS_LICENSEEDETAILS F
+                LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.VCHLICENSENO = @P_VCHREFERENCENO
+                  AND F.INTDELETEDFLAG = 0
+        END
+        ELSE IF @COUNT3 = 0
+        BEGIN
+            SELECT @COUNT3 AS CHECKDATA
+        END
+    END
+
+
+    IF (@P_CH_ACTION = 'Q') -- GET COMMODITY FOR FPS LICENSE
+    BEGIN
+        --select INTPDSCMRICE,INTPDSCMWHEAT,INTPDSCMKOIL from T_PDS_FPS_LICENSEEDETAILS where INTLICID IN(SELECT INTFPSID FROM M_PDS_FPS_LICENSEAPPLY WHERE VCHREFERENCENO=@P_VCHREFERENCENO)
+        select T.INTPDSCMRICE,
+               T.INTPDSCMWHEAT,
+               T.INTPDSCMKOIL,
+               M.INTACTTYPE
+        from T_PDS_FPS_LICENSEEDETAILS T
+            INNER JOIN M_PDS_FPS_LICENSEAPPLY M
+                ON M.INTFPSID = T.INTLICID
+        where INTLICID IN (
+                              SELECT INTFPSID
+                              FROM M_PDS_FPS_LICENSEAPPLY
+                              WHERE VCHREFERENCENO = @P_VCHREFERENCENO
+                                    AND M.INTDELETEDFLAG = 0
+                          )
+    END
+
+    IF (@P_CH_ACTION = 'PC') -- GET USERDATA FOR PASSWORD CHANGE
+    BEGIN
+        select USERID,
+               username,
+               EncryptPassword as VCHOLDPASS,
+               MobileNo
+        from UserMaster
+        where username = @P_VCHREFERENCENO
+    END
+
+    IF (@P_CH_ACTION = 'S')
+    BEGIN
+        DECLARE @COUNT5 INT = 0
+        IF EXISTS
+        (
+            SELECT INTFPSID
+            FROM M_PDS_FPS_LICENSEAPPLY
+            WHERE VCHLICENSENO = @P_VCHREFERENCENO
+        )
+        BEGIN
+            IF EXISTS
+            (
+                SELECT INTFPSID
+                FROM M_PDS_FPS_LICENSEAPPLY
+                WHERE VCHLICENSENO = @P_VCHREFERENCENO
+                      AND VCHOLDLICENSENO <> '0'
+            )
+            BEGIN
+                DECLARE @TYPE VARCHAR(30) = (
+                                                SELECT VCHOLDLICENSENO
+                                                FROM M_PDS_FPS_LICENSEAPPLY
+                                                WHERE VCHLICENSENO = @P_VCHREFERENCENO
+                                                      AND INTDELETEDFLAG = 0
+                                            )
+                --select @TYPE
+                IF @TYPE <> '0'
+                BEGIN
+                    DECLARE @STATUS VARCHAR(10) = SUBSTRING(@TYPE, 5, 1)
+                    --select @STATUS
+                    IF @STATUS = 'G'
+                    BEGIN
+                        SET @COUNT5 = 1
+                    END
+                    ELSE
+                    BEGIN
+                        SET @COUNT5 = 2
+                        SELECT @COUNT5 AS CHECKDATA
+                    END
+                END
+            END
+            ELSE
+            BEGIN
+                DECLARE @FTYPE VARCHAR(10) = (
+                                                 SELECT INTFPSTYPE
+                                                 FROM T_PDS_FPS_LICENSEEDETAILS
+                                                 WHERE INTLICID IN (
+                                                                       SELECT INTFPSID
+                                                                       FROM M_PDS_FPS_LICENSEAPPLY M
+                                                                       WHERE VCHLICENSENO = @P_VCHREFERENCENO
+                                                                             AND M.INTDELETEDFLAG = 0
+                                                                   )
+                                             )
+                IF @FTYPE = '1'
+                BEGIN
+                    SET @COUNT5 = 1
+                END
+                ELSE
+                BEGIN
+                    SET @COUNT5 = 3
+                    SELECT @COUNT5 AS CHECKDATA
+                END
+            END
+
+            IF @COUNT5 = 1
+            BEGIN
+                SELECT @COUNT5 AS CHECKDATA,
+                       F.INTLICID,
+                       F.VCHAPPLICANTNAME,
+                       F.VCHFATHER,
+                       F.INTCASTE,
+                       F.VCHAPPLPROFESSION,
+                       F.VCHADDRESS,
+                       F.VCHPLACETOACT,
+                       F.VCHPLOTNO,
+                       F.VCHKHATANO,
+                       F.VCHMOUZA,
+                       F.VCHSTREETADDRESS,
+                       F.VCHPINCODE,
+                       F.VCHPOLICESTATION,
+                       F.VCHDISTID,
+                       F.VCHBLOCKID,
+                       F.VCHEASTBOUNDARYDET,
+                       F.VCHNORTHBOUNDARYDET,
+                       F.VCHWESTBOUNDARYDET,
+                       F.VCHSOUTHBOUNDARYDET,
+                       F.INTBUILDINGTYPE,
+                       F.INTROOFTYPE,
+                       F.INTCOMPOUNDWALL,
+                       F.INTSTORAGE,
+                       F.DECSTORAGE,
+                       F.INTOWNERSHIPTYPE,
+                       F.VCHRENTAGREEMENTDET,
+                       F.INTPREVLICENSEAPPLY,
+                       F.VCHPREVLICENSEDET,
+                       F.VCHSUBCENTER,
+                       F.DECINCOMETAX1,
+                       F.VCHINCOMETAX1,
+                       F.DECINCOMETAX2,
+                       F.VCHINCOMETAX2,
+                       F.VCHCOMMODITIESADDRESS,
+                       F.INTELECTRICITY,
+                       F.INTPOSAVL,
+                       F.VCHAPPLICANTPHOTO,
+                       F.VCHAPPLICANTMOBILE,
+                       F.VCHAPPLICANTAADHAARNO,
+                       L.VCHOLDLICENSENO,
+                       F.INTINTERNET,
+                       L.INTACTTYPE,
+                       CASE
+                           WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                               'RICE'
+                       END INTPDSCMRICE,
+                       CASE
+                           WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                               'WHEAT'
+                       END INTPDSCMWHEAT,
+                       CASE
+                           WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                               'KEROSENE'
+                       END INTPDSCMKOIL,
+                       DECLASTCMRICE,
+                       DECLASTCMWHEAT,
+                       DECLASTCMKOIL,
+                       DECCURCMRICE,
+                       DECCURCMWHEAT,
+                       DECCURCMKOIL,
+                       DECFUTCMRICE,
+                       DECFUTCMWHEAT,
+                       DECFUTCMKOIL
+                FROM T_PDS_FPS_LICENSEEDETAILS F
+                    LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                        ON F.INTLICID = L.INTFPSID
+                WHERE L.INTDELETEDFLAG = 0
+                      AND L.VCHLICENSENO = @P_VCHREFERENCENO
+                      AND F.INTDELETEDFLAG = 0
+                ORDER BY VCHAPPLICANTNAME
+            END
+        END
+        ELSE
+        BEGIN
+            SET @COUNT5 = 0
+            SELECT @COUNT5 AS CHECKDATA
+        END
+    END
+
+    IF (@P_CH_ACTION = 'CM')
+    BEGIN
+
+        SELECT *
+        FROM M_PDS_FPS_LICENSEAPPLY
+        where VCHAPPLICANTMOBILE = @P_VCHAPPLICANTMOBILE
+              and INTDELETEDFLAG = 0
+              and isnull(VCHOLDLICENSENO, '') <> ''
+              and VCHLICENSENO is not null
+    END
+    IF (@P_CH_ACTION = 'CA')
+    BEGIN
+        SELECT *
+        FROM M_PDS_FPS_LICENSEAPPLY
+        where VCHAPPLICANTAADHAARNO = @P_VCHAPPLICANTAADHAARNO
+              and INTDELETEDFLAG = 0
+              and isnull(VCHOLDLICENSENO, '') <> ''
+              and VCHLICENSENO is not null
+    END
+
+    IF (@P_CH_ACTION = 'VS') -- GET USER DATA FOR PRINT
+    BEGIN
+        SELECT VCHREFERENCENO,
+               VCHAPPLICANTNAME,
+               VCHFATHER,
+               CASE
+                   WHEN INTCASTE = 0 THEN
+                       'NEW'
+                   WHEN INTCASTE = 1 THEN
+                       'GENERAL'
+                   WHEN INTCASTE = 2 THEN
+                       'SC'
+                   WHEN INTCASTE = 3 THEN
+                       'ST'
+                   WHEN INTCASTE = 4 THEN
+                       'SEBC'
+                   WHEN INTCASTE = 4 THEN
+                       'PH'
+               END AS INTCASTE,
+               VCHAPPLPROFESSION,
+               VCHADDRESS,
+               VCHPLACETOACT,
+               VCHPLOTNO,
+               VCHKHATANO,
+               VCHMOUZA,
+               VCHSTREETADDRESS,
+               VCHPINCODE,
+               VCHPOLICESTATION,
+               VCHDISTID,
+               D.VCH_DISTRICTNAME AS DISTNAME,
+               VCHBLOCKID,
+               (
+                   Select vch_BlockName from PDS_BlockMaster where int_BlockID = VCHBLOCKID
+               ) as BLOCK,
+               VCHEASTBOUNDARYDET,
+               VCHNORTHBOUNDARYDET,
+               VCHWESTBOUNDARYDET,
+               VCHSOUTHBOUNDARYDET,
+               VCHSUBCENTER,
+               CASE
+                   WHEN INTBUILDINGTYPE = 0 THEN
+                       'PUCCA'
+                   WHEN INTBUILDINGTYPE = 1 THEN
+                       'KACHA'
+               END AS INTBUILDINGTYPE,
+               CASE
+                   WHEN INTROOFTYPE = 0 THEN
+                       'RCC'
+                   WHEN INTROOFTYPE = 1 THEN
+                       'Asbestos sheet'
+               END AS INTROOFTYPE,
+               CASE
+                   WHEN INTCOMPOUNDWALL = 0 THEN
+                       'No'
+                   WHEN INTCOMPOUNDWALL = 1 THEN
+                       'Yes'
+               END AS INTCOMPOUNDWALL,
+               CASE
+                   WHEN INTSTORAGE = 0 THEN
+                       'No'
+                   WHEN INTSTORAGE = 1 THEN
+                       'Yes'
+               END AS INTSTORAGE,
+               DECSTORAGE,
+               CASE
+                   WHEN INTOWNERSHIPTYPE = 0 THEN
+                       'OWN'
+                   WHEN INTOWNERSHIPTYPE = 1 THEN
+                       'RENTED'
+               END AS INTOWNERSHIPTYPE,
+               VCHRENTAGREEMENTDET,
+               -- CASE	WHEN	L.INTACTTYPE=0	THEN	'Retailer'
+               --	WHEN	L.INTACTTYPE=1	THEN	'Wholesaler'
+               --	WHEN	L.INTACTTYPE=1	THEN	'Sub-Wholesaler' 
+               --END AS INTAPPLACTTYPE,
+               M.VCHACTIVITYNAME AS INTAPPLACTTYPE,
+               CASE
+                   WHEN INTPREVLICENSEAPPLY = 0 THEN
+                       'No'
+                   WHEN INTPREVLICENSEAPPLY = 1 THEN
+                       'Yes'
+               END AS INTPREVLICENSEAPPLY,
+               VCHPREVLICENSEDET,
+               DECINCOMETAX1,
+               DECINCOMETAX2,
+               VCHINCOMETAX2,
+               VCHINCOMETAX1,
+               VCHCOMMODITIESADDRESS,
+               CASE
+                   WHEN INTELECTRICITY = 1 THEN
+                       'No'
+                   WHEN INTELECTRICITY = 0 THEN
+                       'Yes'
+               END AS INTELECTRICITY,
+               CASE
+                   WHEN INTINTERNET = 0 THEN
+                       'No'
+                   WHEN INTINTERNET = 1 THEN
+                       'Yes'
+               END AS INTINTERNET,
+               CASE
+                   WHEN INTPOSAVL = 0 THEN
+                       'No'
+                   WHEN INTPOSAVL = 1 THEN
+                       'Yes'
+               END AS POS,
+               L.VCHAPPLICANTMOBILE,
+               L.VCHAPPLICANTAADHAARNO,
+               VCHAPPLICANTPHOTO,
+               CASE
+                   WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                       'RICE'
+               END INTPDSCMRICE,
+               CASE
+                   WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                       'WHEAT'
+               END INTPDSCMWHEAT,
+               CASE
+                   WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                       'KEROSENE'
+               END INTPDSCMKOIL,
+               DECLASTCMRICE,
+               DECLASTCMWHEAT,
+               DECLASTCMKOIL,
+               DECCURCMRICE,
+               DECCURCMWHEAT,
+               DECCURCMKOIL,
+               DECFUTCMRICE,
+               DECFUTCMWHEAT,
+               DECFUTCMKOIL,
+               CASE
+                   WHEN T.INTPAYMODE = 2 THEN
+                       'Offline'
+                   WHEN T.INTPAYMODE = 1 THEN
+                       'Online'
+               END AS PAYMENTMODE,
+               T.DECAMOUNT,
+               T.VCHCHALLAN,
+               Convert(varchar(20), T.DTMCHALLAN, 113) DTMCHALLAN
+        FROM T_PDS_FPS_SUBCENTER_LICENSEEDETAILS F
+            LEFT JOIN PDS_DISTRICTMASTER D
+                ON F.VCHDISTID = D.INT_DISTRICTID
+            LEFT JOIN M_PDS_FPS_SUBCENTER_LICENSEAPPLY L
+                ON F.INTLICID = L.INTFPSID
+            LEFT JOIN T_PDS_FPS_PAYMENT T
+                ON L.VCHREFERENCENO = T.VCHREFERENCECODE
+                   AND T.INTDELETEDFLAG = 0
+            left join M_PDS_SETAUTH_ACTIVITY M
+                On M.INTACTIVITYID = L.INTACTTYPE
+                   AND M.INTDELETEDFLAG = 0
+        WHERE L.INTDELETEDFLAG = 0
+              AND (
+                      L.VCHLICENSENO = @P_VCHREFERENCENO
+                      OR L.VCHREFERENCENO = @P_VCHREFERENCENO
+                      OR L.VCHOLDLICENSENO = @P_VCHREFERENCENO
+                  )
+              AND F.INTDELETEDFLAG = 0
+        ORDER BY VCHAPPLICANTNAME
+    END
+
+    IF (@P_CH_ACTION = 'BS') -- GET USER DATA FOR PRINT LICENSE
+    BEGIN
+        IF (@P_INTLICSTATUS = '0')
+        BEGIN
+            SELECT L.VCHLICENSENO,
+                   VCHAPPLICANTNAME,
+                   L.VCHOLDLICENSENO,
+                   VCHFATHER,
+                   CASE
+                       WHEN VCHFATHER <> '' THEN
+                   ('C/O :' + VCHFATHER + ' , ' + VCHADDRESS)
+                       ELSE
+                           VCHADDRESS
+                   END Details,
+                   VCHPLOTNO,
+                   VCHSTREETADDRESS,
+                   VCHDISTID,
+                   D.VCH_DISTRICTNAME AS DISTNAME,
+                   ISNULL(G.VCH_GPNAME, 'NA') AS GP,
+                   ISNULL(VCH_VILLAGENAME, 'NA') AS VILLAGE,
+                   VCHEASTBOUNDARYDET,
+                   VCHNORTHBOUNDARYDET,
+                   VCHWESTBOUNDARYDET,
+                   VCHSOUTHBOUNDARYDET,
+                   VCHPLACETOACT,
+                   CASE
+                       WHEN INTBUILDINGTYPE = 0 THEN
+                           'PUCCA'
+                       WHEN INTBUILDINGTYPE = 1 THEN
+                           'KACHA'
+                   END AS INTBUILDINGTYPE,
+                   CASE
+                       WHEN INTOWNERSHIPTYPE = 0 THEN
+                           'OWN'
+                       WHEN INTOWNERSHIPTYPE = 1 THEN
+                           'RENTED'
+                   END AS INTOWNERSHIPTYPE,
+                   VCHRENTAGREEMENTDET,
+                   CASE
+                       WHEN L.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN L.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS INTAPPLACTTYPE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END INTPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END INTPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END INTPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL,
+                   F.VCHAPPLICANTPHOTO,
+                   A.VCHPOSNO,
+                   L.DTMVALIDTO
+            FROM T_PDS_FPS_SUBCENTER_LICENSEEDETAILS F
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON F.VCHDISTID = D.INT_DISTRICTID
+                       AND F.INTDELETEDFLAG = 0
+                LEFT JOIN PDS_GPMASTER G
+                    ON G.INT_GPID = F.VCHGPID
+                LEFT JOIN PDS_VILLAGEMASTER V
+                    ON F.VCHVILLAGEID = V.INT_VILLAGEID
+                LEFT JOIN M_PDS_FPS_SUBCENTER_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+                LEFT JOIN M_PDS_FPS_SUBCENTER_APPROVAL A
+                    ON L.INTFPSID = A.INTFPSLICID
+                       AND A.INTLEVEL = 1
+                       AND A.INT_DESIGNATION = 20
+                       and A.INTDELETEDFLAG = 0
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.INTAPPROVESTATUS = 4
+                  AND @P_INTLICSTATUS = 0
+                  AND F.INTLICID = @P_INTFPSID
+        END
+        ELSE
+        BEGIN
+            SELECT L.VCHLICENSENO,
+                   VCHAPPLICANTNAME,
+                   VCHSTREETADDRESS,
+                   VCHDISTID,
+                   D.VCH_DISTRICTNAME AS DISTNAME,
+                   VCHFATHER,
+                   VCHEASTBOUNDARYDET,
+                   VCHNORTHBOUNDARYDET,
+                   VCHWESTBOUNDARYDET,
+                   VCHSOUTHBOUNDARYDET,
+                   CASE
+                       WHEN INTBUILDINGTYPE = 0 THEN
+                           'PUCCA'
+                       WHEN INTBUILDINGTYPE = 1 THEN
+                           'KACHA'
+                   END AS INTBUILDINGTYPE,
+                   CASE
+                       WHEN INTOWNERSHIPTYPE = 0 THEN
+                           'OWN'
+                       WHEN INTOWNERSHIPTYPE = 1 THEN
+                           'RENTED'
+                   END AS INTOWNERSHIPTYPE,
+                   VCHRENTAGREEMENTDET,
+                   CASE
+                       WHEN L.INTACTTYPE = 5 THEN
+                           'Kerosene Wholesaler'
+                       WHEN L.INTACTTYPE = 4 THEN
+                           'Retailer'
+                   END AS INTAPPLACTTYPE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                           'RICE'
+                   END INTPDSCMRICE,
+                   CASE
+                       WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                           'WHEAT'
+                   END INTPDSCMWHEAT,
+                   CASE
+                       WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                           'KEROSENE'
+                   END INTPDSCMKOIL,
+                   DECLASTCMRICE,
+                   DECLASTCMWHEAT,
+                   DECLASTCMKOIL,
+                   DECCURCMRICE,
+                   DECCURCMWHEAT,
+                   DECCURCMKOIL,
+                   DECFUTCMRICE,
+                   DECFUTCMWHEAT,
+                   DECFUTCMKOIL,
+                   F.VCHAPPLICANTPHOTO
+            FROM T_PDS_FPS_SUBCENTER_LICENSEEDETAILS F
+                LEFT JOIN PDS_DISTRICTMASTER D
+                    ON F.VCHDISTID = D.INT_DISTRICTID
+                       AND F.INTDELETEDFLAG = 0
+                LEFT JOIN M_PDS_FPS_SUBCENTER_LICENSEAPPLY L
+                    ON F.INTLICID = L.INTFPSID
+            WHERE L.INTDELETEDFLAG = 0
+                  AND L.INTAPPROVESTATUS = 4
+                  AND @P_INTLICSTATUS = 1
+        END
+    END
+    IF (@P_CH_ACTION = 'PD')
+    BEGIN
+        select M.VCHAPPLICANTMOBILE,
+               T.VCHAPPLICANTNAME,
+               P.VCHPAYNO,
+               P.VCHREFERENCENO,
+               P.DTMCREATEDON,
+               CASE
+                   WHEN P.INTPAYSTATUS = 1 THEN
+                       'SUCCESSFUL'
+                   WHEN P.INTPAYSTATUS = 0 THEN
+                       'NOTSUCCESSFUL'
+               END AS PAYMENT
+        from T_PDS_FPS_LICENSEEDETAILS T
+            LEFT JOIN M_PDS_FPS_LICENSEAPPLY M
+                ON T.INTLICID = M.INTFPSID
+            LEFT JOIN T_PDS_FPS_PAYMENT_HISTORY P
+                ON M.VCHREFERENCENO = P.VCHREFERENCENO
+        WHERE P.VCHPAYNO = @P_VCHREFERENCENO
+    END
+
+    IF (@P_CH_ACTION = 'GO')
+    BEGIN
+        DECLARE @CNT3 INT
+        --DECLARE @COUNT2 INT=0
+        --IF ((@P_VCHREFERENCENO ='2226K119') or (@P_VCHREFERENCENO ='2211K218') or (@P_VCHREFERENCENO ='2211K219') or (@P_VCHREFERENCENO ='2213K083') or (@P_VCHREFERENCENO ='2208K093') or (@P_VCHREFERENCENO ='2230K015'))
+        --begin
+        IF EXISTS
+        (
+            SELECT INTREGDID
+            FROM M_FPS_REGISTRATION
+            WHERE VCHREFNO = @P_VCHREFERENCENO
+        )
+        BEGIN
+            IF (
+                   SUBSTRING(@P_VCHREFERENCENO, 5, 1) = 'P'
+                   or SUBSTRING(@P_VCHREFERENCENO, 5, 1) = 'G'
+                   or SUBSTRING(@P_VCHREFERENCENO, 5, 1) = 'W'
+               )
+            begin
+                --	 set  @CNT=  (select Count(INTFPSID)  FROM M_PDS_FPS_LICENSEAPPLY 
+                --WHERE INTDELETEDFLAG=0 AND ISNULL(VCHOLDLICENSENO,'')=@P_VCHREFERENCENO AND INTYEAR<>2020)
+                --	if(@CNT=0)
+                --	begin 
+                --		SET @COUNT1=0
+                --SELECT @COUNT1 AS CHECKDATA
+                --	end
+                --	else
+                --	begin
+                IF EXISTS
+                (
+                    SELECT INTFPSID
+                    FROM M_PDS_FPS_LICENSEAPPLY
+                    WHERE INTDELETEDFLAG = 0
+                          AND INTAPPROVESTATUS <> 7
+                          AND ISNULL(VCHOLDLICENSENO, '') = @P_VCHREFERENCENO
+                          AND INTYEAR = 2020
+                )
+                BEGIN
+                    SET @COUNT3 = 3
+                    SELECT @COUNT3 AS CHECKDATA
+                END
+                ELSE IF EXISTS
+                (
+                    SELECT INTFPSID
+                    FROM M_PDS_FPS_LICENSEAPPLY
+                    WHERE INTDELETEDFLAG = 0
+                          AND ISNULL(VCHOLDLICENSENO, '') = @P_VCHREFERENCENO
+                          AND INTYEAR <> 2020
+                )
+                BEGIN
+                    SET @COUNT3 = 2
+
+                END
+                ELSE
+                BEGIN
+                    SET @COUNT3 = 1
+                END
+                IF @COUNT3 = 1
+                BEGIN
+                    SELECT @COUNT3 AS CHECKDATA,
+                           VCHDISTID,
+                           VCHBLOCKID,
+                           iif((VCHGPID = '0' or vchVillageID = '0'), intWardNo, vchGPID) vchGPID,
+                           iif((VCHGPID = '0' or vchVillageID = '0'), vchLocality, VCHVILLAGEID) vchVillageID,
+                           VCHLHNAME as VCHAPPLICANTNAME,
+                           INTMOBILENO as VCHAPPLICANTMOBILE,
+                           VCHADDRESS as VCHADDRESS,
+                           VCHPLOTNO as VCHPLOTNO,
+                           INTAEL as INTELECTRICITY,
+                           intRegdId
+                    FROM M_FPS_REGISTRATION F
+                    WHERE F.VCHREFNO = @P_VCHREFERENCENO --AND F.BITDELETEDFLAG=0 
+                --WHERE  F.VCHREFNO=@P_VCHREFERENCENO AND (vchLType='WSHG' OR vchLType='SHG')							 
+                END
+                ELSE IF @COUNT3 = 2
+                BEGIN
+                    SELECT top 1
+                        @COUNT3 AS CHECKDATA,
+                        F.INTLICID,
+                        F.VCHAPPLICANTNAME,
+                        F.VCHFATHER,
+                        F.INTCASTE,
+                        F.VCHAPPLPROFESSION,
+                        F.VCHADDRESS,
+                        F.VCHPLACETOACT,
+                        F.VCHPLOTNO,
+                        F.VCHKHATANO,
+                        F.VCHMOUZA,
+                        F.VCHSTREETADDRESS,
+                        F.VCHPINCODE,
+                        F.VCHPOLICESTATION,
+                        F.VCHDISTID,
+                        F.VCHBLOCKID,
+                        F.VCHEASTBOUNDARYDET,
+                        F.VCHNORTHBOUNDARYDET,
+                        F.VCHWESTBOUNDARYDET,
+                        F.VCHSOUTHBOUNDARYDET,
+                        F.INTBUILDINGTYPE,
+                        F.INTROOFTYPE,
+                        F.INTCOMPOUNDWALL,
+                        F.INTSTORAGE,
+                        F.DECSTORAGE,
+                        F.INTOWNERSHIPTYPE,
+                        F.VCHRENTAGREEMENTDET,
+                        F.INTPREVLICENSEAPPLY,
+                        F.VCHPREVLICENSEDET,
+                        F.VCHSUBCENTER,
+                        F.DECINCOMETAX1,
+                        F.VCHINCOMETAX1,
+                        F.DECINCOMETAX2,
+                        F.VCHINCOMETAX2,
+                        F.VCHCOMMODITIESADDRESS,
+                        F.INTELECTRICITY,
+                        F.INTPOSAVL,
+                        F.VCHAPPLICANTPHOTO,
+                        F.VCHAPPLICANTMOBILE,
+                        F.VCHAPPLICANTAADHAARNO,
+                        F.INTINTERNET,
+                        L.INTACTTYPE,
+                        CASE
+                            WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                                'RICE'
+                        END INTPDSCMRICE,
+                        CASE
+                            WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                                'WHEAT'
+                        END INTPDSCMWHEAT,
+                        CASE
+                            WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                                'KEROSENE'
+                        END INTPDSCMKOIL,
+                        DECLASTCMRICE,
+                        DECLASTCMWHEAT,
+                        DECLASTCMKOIL,
+                        DECCURCMRICE,
+                        DECCURCMWHEAT,
+                        DECCURCMKOIL,
+                        DECFUTCMRICE,
+                        DECFUTCMWHEAT,
+                        DECFUTCMKOIL
+                    FROM T_PDS_FPS_LICENSEEDETAILS F
+                        LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                            ON F.INTLICID = L.INTFPSID
+                    WHERE L.INTDELETEDFLAG = 0
+                          AND L.VCHOLDLICENSENO = @P_VCHREFERENCENO
+                          AND F.INTDELETEDFLAG = 0
+                          AND (
+                                  L.INTYEAR = 2019
+                                  OR L.INTYEAR = 2018
+                              )
+                          and INTAPPROVESTATUS <> 7
+                    ORDER BY VCHAPPLICANTNAME,
+                             L.INTYEAR desc
+                END
+            --end
+            end
+            else
+            begin
+                IF EXISTS
+                (
+                    SELECT INTFPSID
+                    FROM M_PDS_FPS_LICENSEAPPLY
+                    WHERE INTDELETEDFLAG = 0
+                          AND INTAPPROVESTATUS <> 7
+                          AND ISNULL(VCHOLDLICENSENO, '') = @P_VCHREFERENCENO
+                          AND INTYEAR = 2020
+                )
+                BEGIN
+                    SET @COUNT3 = 3
+                    SELECT @COUNT3 AS CHECKDATA
+                END
+                ELSE IF EXISTS
+                (
+                    SELECT INTFPSID
+                    FROM M_PDS_FPS_LICENSEAPPLY
+                    WHERE INTDELETEDFLAG = 0
+                          AND ISNULL(VCHOLDLICENSENO, '') = @P_VCHREFERENCENO
+                          AND INTYEAR <> 2020
+                )
+                BEGIN
+                    SET @COUNT3 = 2
+
+                END
+                ELSE
+                BEGIN
+                    SET @COUNT1 = 1
+                END
+                IF @COUNT1 = 1
+                BEGIN
+                    SELECT @COUNT3 AS CHECKDATA,
+                           VCHDISTID,
+                           VCHBLOCKID,
+                           iif((VCHGPID = '0' or vchVillageID = '0'), intWardNo, vchGPID) vchGPID,
+                           iif((VCHGPID = '0' or vchVillageID = '0'), vchLocality, VCHVILLAGEID) vchVillageID,
+                           VCHLHNAME as VCHAPPLICANTNAME,
+                           INTMOBILENO as VCHAPPLICANTMOBILE,
+                           VCHADDRESS as VCHADDRESS,
+                           VCHPLOTNO as VCHPLOTNO,
+                           INTAEL as INTELECTRICITY
+                    FROM M_FPS_REGISTRATION F
+                    WHERE F.VCHREFNO = @P_VCHREFERENCENO --AND F.BITDELETEDFLAG=0 
+                --WHERE  F.VCHREFNO=@P_VCHREFERENCENO AND (vchLType='WSHG' OR vchLType='SHG')							 
+                END
+                ELSE IF @COUNT1 = 2
+                BEGIN
+                    SELECT top 1
+                        @COUNT3 AS CHECKDATA,
+                        F.INTLICID,
+                        F.VCHAPPLICANTNAME,
+                        F.VCHFATHER,
+                        F.INTCASTE,
+                        F.VCHAPPLPROFESSION,
+                        F.VCHADDRESS,
+                        F.VCHPLACETOACT,
+                        F.VCHPLOTNO,
+                        F.VCHKHATANO,
+                        F.VCHMOUZA,
+                        F.VCHSTREETADDRESS,
+                        F.VCHPINCODE,
+                        F.VCHPOLICESTATION,
+                        F.VCHDISTID,
+                        F.VCHBLOCKID,
+                        F.VCHEASTBOUNDARYDET,
+                        F.VCHNORTHBOUNDARYDET,
+                        F.VCHWESTBOUNDARYDET,
+                        F.VCHSOUTHBOUNDARYDET,
+                        F.INTBUILDINGTYPE,
+                        F.INTROOFTYPE,
+                        F.INTCOMPOUNDWALL,
+                        F.INTSTORAGE,
+                        F.DECSTORAGE,
+                        F.INTOWNERSHIPTYPE,
+                        F.VCHRENTAGREEMENTDET,
+                        F.INTPREVLICENSEAPPLY,
+                        F.VCHPREVLICENSEDET,
+                        F.VCHSUBCENTER,
+                        F.DECINCOMETAX1,
+                        F.VCHINCOMETAX1,
+                        F.DECINCOMETAX2,
+                        F.VCHINCOMETAX2,
+                        F.VCHCOMMODITIESADDRESS,
+                        F.INTELECTRICITY,
+                        F.INTPOSAVL,
+                        F.VCHAPPLICANTPHOTO,
+                        F.VCHAPPLICANTMOBILE,
+                        F.VCHAPPLICANTAADHAARNO,
+                        F.INTINTERNET,
+                        L.INTACTTYPE,
+                        CASE
+                            WHEN ISNULL(INTPDSCMRICE, 0) = 1 THEN
+                                'RICE'
+                        END INTPDSCMRICE,
+                        CASE
+                            WHEN ISNULL(INTPDSCMWHEAT, 0) = 1 THEN
+                                'WHEAT'
+                        END INTPDSCMWHEAT,
+                        CASE
+                            WHEN ISNULL(INTPDSCMKOIL, 0) = 1 THEN
+                                'KEROSENE'
+                        END INTPDSCMKOIL,
+                        DECLASTCMRICE,
+                        DECLASTCMWHEAT,
+                        DECLASTCMKOIL,
+                        DECCURCMRICE,
+                        DECCURCMWHEAT,
+                        DECCURCMKOIL,
+                        DECFUTCMRICE,
+                        DECFUTCMWHEAT,
+                        DECFUTCMKOIL
+                    FROM T_PDS_FPS_LICENSEEDETAILS F
+                        LEFT JOIN M_PDS_FPS_LICENSEAPPLY L
+                            ON F.INTLICID = L.INTFPSID
+                    WHERE L.INTDELETEDFLAG = 0
+                          AND L.VCHOLDLICENSENO = @P_VCHREFERENCENO
+                          AND F.INTDELETEDFLAG = 0
+                          AND (
+                                  L.INTYEAR = 2019
+                                  OR L.INTYEAR = 2018
+                              )
+                    ORDER BY VCHAPPLICANTNAME,
+                             L.INTYEAR desc
+                END
+            end
+        END
+        ELSE
+        BEGIN
+            SET @COUNT1 = 0
+            SELECT @COUNT1 AS CHECKDATA
+        END
+    --end
+    --else 
+    --begin
+    --SET @COUNT1=0
+    --end 
+    END
+
+
+--IF (@P_CH_ACTION='PO')
+--BEGIN
+--(SELECT ODISHAONE_ENCRYPTEDDATA FROM T_PDS_FPS_PAYMENT_HISTORY WHERE VCHPAYNO=@P_VCHREFERENCENO) 
+--END
+
+
+
+END
